@@ -7,18 +7,11 @@
  */
 
 const nodeCrypto = require('crypto');
-const bcrypt      = require('bcryptjs'); // pure-JS bcrypt — no native bindings required
-const { v4: uuidv4 } = require('uuid');
+const bcrypt      = require('bcryptjs');
 
 const BCRYPT_ROUNDS = 12;
 
-/**
- * Generate a cryptographically secure random 6-digit OTP string.
- * Uses crypto.randomInt(min, max) which is backed by the OS CSPRNG.
- * Range: [0, 1_000_000) — padded to always be 6 digits.
- */
 function generateOTP() {
-  // crypto.randomInt(0, 1_000_000) produces integers in [0, 999999]
   const raw = nodeCrypto.randomInt(0, 1_000_000);
   return String(raw).padStart(6, '0');
 }
@@ -47,7 +40,7 @@ async function verifyOTP(submitted, storedHash) {
  * @returns {string}
  */
 function generateSessionToken() {
-  return uuidv4();
+  return nodeCrypto.randomUUID();
 }
 
 module.exports = {

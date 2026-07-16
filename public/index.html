@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RobustOTP</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>RobustOTP</h1>
+      <p class="subtitle">Secure one-time password authentication</p>
+    </header>
+
+    <div class="step" id="step-email">
+      <form id="send-form">
+        <div class="field">
+          <label for="identifier">Email address</label>
+          <input type="email" id="identifier" placeholder="you@example.com" required autofocus>
+        </div>
+        <button type="submit" class="btn-primary">Send verification code</button>
+      </form>
+      <div id="send-status" class="status"></div>
+    </div>
+
+    <div class="step" id="step-code" style="display:none">
+      <div class="sent-badge">Code sent to <span id="sent-email"></span></div>
+      <form id="verify-form">
+        <div class="field">
+          <label for="code">6-digit code</label>
+          <input type="text" id="code" placeholder="000000" inputmode="numeric" pattern="\d{6}" maxlength="6" required autofocus>
+        </div>
+        <button type="submit" class="btn-primary">Verify</button>
+      </form>
+      <p class="hint">Enter the code from your email. Expires in 5 minutes.</p>
+      <div id="verify-status" class="status"></div>
+      <p class="hint"><a href="#" id="back-link">← Use a different email</a></p>
+    </div>
+
+    <div class="step" id="step-done" style="display:none">
+      <div class="success-badge">✅ Verified</div>
+      <div class="field">
+        <label>Session token</label>
+        <input type="text" id="token-display" readonly>
+      </div>
+      <p class="hint">Copy this token — it won't be shown again.</p>
+      <button class="btn-primary" id="done-btn">Start over</button>
+    </div>
+
+    <footer>
+      <a href="/health" target="_blank">Health</a>
+    </footer>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
