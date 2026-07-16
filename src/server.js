@@ -2,14 +2,13 @@
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 
-const path         = require('path');
-const express      = require('express');
+const path = require('path');
+const express = require('express');
 const requestLogger = require('./middleware/logger');
-const authRoutes   = require('./routes/auth');
-const { getOTP }   = require('./store/otpStore');
-const { initEmail, isResendEnabled } = require('./services/email');
+const routes = require('./routes');
+const { initEmail, isEmailEnabled } = require('./services/emailService');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_TEST = process.env.NODE_ENV === 'test';
 
@@ -17,27 +16,31 @@ app.use(express.json());
 app.use(requestLogger);
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-app.use('/auth', authRoutes);
+app.use(routes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
 if (IS_TEST) {
-  console.warn('[TEST MODE] Debug endpoints are active. Never use in production.');
+  console.warn('[TEST MODE] Debug endpoints are active.');
 
   app._testLastOTPs = new Map();
 
   app.post('/auth/_test_last_otp', (req, res) => {
     const id = (req.body.identifier || '').toLowerCase();
     const otp = app._testLastOTPs.get(id);
-    if (!otp) return res.status(404).json({ message: 'No OTP found for identifier' });
+    if (!otp) return res.status(404).json({ message: 'No OTP found' });
     return res.json({ otp });
   });
 
   app.post('/auth/_test_expire_otp', async (req, res) => {
+    const prisma = require('./config/prisma');
     const id = (req.body.identifier || '').toLowerCase();
-    const record = await getOTP(id);
-    if (!record) return res.status(404).json({ message: 'No OTP record' });
-    record.expiresAt = new Date(0);
+    const user = await prisma.user.findUnique({ where: { email: id } });
+    if (!user) return res.status(404).json({ message: 'No user found' });
+    await prisma.otpCode.updateMany({
+      where: { userId: user.id, verified: false },
+      data: { expiresAt: new Date(0) },
+    });
     return res.json({ message: 'OTP force-expired' });
   });
 }
@@ -55,7 +58,7 @@ if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`\nRobustOTP — http://localhost:${PORT}`);
     console.log(`EMAIL_FROM    : ${process.env.EMAIL_FROM || '(not set)'}`);
-    console.log(`Resend Enabled: ${isResendEnabled() ? 'YES' : 'NO'}`);
+    console.log(`Email Enabled : ${isEmailEnabled() ? 'YES' : 'NO'}`);
     console.log(`Environment   : ${IS_TEST ? 'TEST' : process.env.NODE_ENV || 'production'}\n`);
   });
 }

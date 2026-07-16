@@ -203,11 +203,7 @@ async function testNoOTPRecord() {
   assert(r.status === 400, 'Verify without prior send → 400');
 }
 
-async function testPhoneIdentifier() {
-  console.log('\n▸ Phone number identifier');
-  const r = await post('/auth/send', { identifier: '+14155552671' });
-  assert([200, 429].includes(r.status), 'Valid phone number accepted');
-}
+
 
 // ── Run All ───────────────────────────────────────────────────────────────────
 
@@ -224,7 +220,7 @@ async function run() {
     await testSendRateLimit();
     await testCodeExpiry();
     await testNoOTPRecord();
-    await testPhoneIdentifier();
+
   } catch (err) {
     console.error('\n[FATAL] Could not connect to server:', err.message);
     console.error(`Make sure the server is running: node src/server.js`);

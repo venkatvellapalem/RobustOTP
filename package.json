@@ -1,22 +1,27 @@
 {
-  "name": "abuse-resistant-otp-system",
-  "version": "1.0.0",
-  "description": "Cryptographically secure OTP-based authentication system with brute-force and rate-limit protection",
+  "name": "robustotp",
+  "version": "2.0.0",
+  "description": "OTP authentication system with Prisma, Neon, Resend",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node tests/test.js"
+    "test": "node tests/test.js",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "vercel-build": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
-    "@vercel/kv": "^3.0.0",
+    "@prisma/client": "^6.5.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "express": "^4.22.2",
-    "resend": "^6.17.2"
+    "resend": "^4.2.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "prisma": "^6.5.0"
   },
   "engines": {
     "node": ">=18.0.0"
