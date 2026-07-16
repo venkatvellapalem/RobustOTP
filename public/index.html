@@ -10,6 +10,7 @@
 <body>
   <div class="container">
     <header>
+      <div class="logo">R</div>
       <h1>RobustOTP</h1>
       <p class="subtitle">Secure one-time password authentication</p>
     </header>
@@ -20,19 +21,22 @@
           <label for="identifier">Email address</label>
           <input type="email" id="identifier" placeholder="you@example.com" required autofocus>
         </div>
-        <div id="gmail-warning" class="notice notice-warning" hidden>
-          OTP auth emails may be deferred due to Google's strict SPF/DMARC checks.
-          <a href="#" id="try-other-link">Try other email?</a>
+        <div id="gmail-notice" class="gmail-notice">
+          <div class="gmail-icon">i</div>
+          <div class="gmail-body">
+            OTP emails may be deferred on Google domains due to strict SPF/DMARC checks.
+            <a href="#" id="try-other-link">Try other email?</a>
+          </div>
         </div>
         <button type="submit" class="btn-primary">Send verification code</button>
       </form>
       <div id="send-status" class="status"></div>
     </div>
 
-    <div class="step" id="step-code" style="display:none">
+    <div class="step" id="step-code">
       <div class="sent-badge">Code sent to <span id="sent-email"></span></div>
-      <div id="spam-notice" class="notice notice-info" hidden>
-        Don't see the email? Check your spam / promotions folder.
+      <div id="spam-notice" class="spam-notice">
+        Don't see the email? Check your spam or promotions folder.
         <a href="#" id="resend-link">Resend</a>
       </div>
       <form id="verify-form">
@@ -42,19 +46,18 @@
         </div>
         <button type="submit" class="btn-primary">Verify</button>
       </form>
-      <p class="hint">Enter the code from your email. Expires in 5 minutes.</p>
       <div id="verify-status" class="status"></div>
-      <p class="hint"><a href="#" id="back-link"><- Use a different email</a></p>
+      <p class="hint"><a href="#" id="back-link">&lt;- Use a different email</a></p>
     </div>
 
-    <div class="step" id="step-done" style="display:none">
+    <div class="step" id="step-done">
       <div class="success-badge">Verified</div>
-      <div class="field">
+      <div class="field token-field">
         <label>Session token</label>
         <input type="text" id="token-display" readonly>
       </div>
       <p class="hint">Copy this token — it won't be shown again.</p>
-      <button class="btn-primary" id="done-btn">Start over</button>
+      <button class="btn-primary" id="done-btn" style="margin-top:8px">Start over</button>
     </div>
 
     <footer>
