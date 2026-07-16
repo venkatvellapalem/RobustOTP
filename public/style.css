@@ -51,6 +51,15 @@ header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
 .hint a { color: #6b7280; text-decoration: none; }
 .hint a:hover { color: #4f46e5; }
 
+.notice {
+  padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.notice-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.notice-info    { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+.notice a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.notice a:hover { opacity: .75; }
+
 footer { text-align: center; margin-top: 24px; }
 footer a { color: #9ca3af; font-size: 12px; text-decoration: none; }
 footer a:hover { color: #4f46e5; }

@@ -61,10 +61,10 @@ function get(path) {
 
 function assert(condition, name, detail = '') {
   if (condition) {
-    console.log(`  ✅  ${name}`);
+    console.log(`  [PASS]  ${name}`);
     passed++;
   } else {
-    console.error(`  ❌  ${name}${detail ? ' — ' + detail : ''}`);
+    console.error(`  [FAIL]  ${name}${detail ? ' - ' + detail : ''}`);
     failed++;
   }
 }
@@ -124,7 +124,7 @@ async function testHappyPath() {
   try {
     otp = await getLastOTP(identifier);
   } catch {
-    console.log('  ⚠️  Skipping OTP-dependent tests (start server with NODE_ENV=test)');
+    console.log('  [SKIP]  Skipping OTP-dependent tests (start server with NODE_ENV=test)');
     return;
   }
 
@@ -182,14 +182,14 @@ async function testCodeExpiry() {
   try {
     otp = await getLastOTP(identifier);
   } catch {
-    console.log('  ⚠️  Skipping expiry test (start with NODE_ENV=test)');
+    console.log('  [SKIP]  Skipping expiry test (start with NODE_ENV=test)');
     return;
   }
 
   // Force-expire via test endpoint
   const expireR = await post('/auth/_test_expire_otp', { identifier });
   if (expireR.status !== 200) {
-    console.log('  ⚠️  Force-expire endpoint unavailable');
+    console.log('  [SKIP]  Force-expire endpoint unavailable');
     return;
   }
 

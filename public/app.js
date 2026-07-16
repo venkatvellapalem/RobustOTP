@@ -8,23 +8,55 @@ function showStep(id) {
   if (input) setTimeout(() => input.focus(), 100);
 }
 
+const identifierInput = document.getElementById('identifier');
+const gmailWarning = document.getElementById('gmail-warning');
+const spamNotice = document.getElementById('spam-notice');
+
+function checkGmail() {
+  const email = identifierInput.value.trim().toLowerCase();
+  if (email.endsWith('@gmail.com')) {
+    gmailWarning.hidden = false;
+  } else {
+    gmailWarning.hidden = true;
+  }
+}
+
+identifierInput.addEventListener('input', checkGmail);
+
+document.getElementById('try-other-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  gmailWarning.hidden = true;
+  identifierInput.value = '';
+  identifierInput.focus();
+});
+
+document.getElementById('resend-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('verify-status').className = 'status';
+  document.getElementById('code').value = '';
+  document.getElementById('send-form').dispatchEvent(new Event('submit', { cancelable: true }));
+});
+
 document.getElementById('send-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = e.target.querySelector('button');
   const status = document.getElementById('send-status');
   btn.disabled = true;
   status.className = 'status';
+  status.textContent = '';
+  status.innerHTML = '';
 
   try {
     const { status: code, body } = await fetch('/auth/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier: document.getElementById('identifier').value.trim() }),
+      body: JSON.stringify({ identifier: identifierInput.value.trim() }),
     }).then(r => r.json().then(body => ({ status: r.status, body })));
 
     if (code === 200) {
-      currentEmail = document.getElementById('identifier').value.trim();
+      currentEmail = identifierInput.value.trim();
       document.getElementById('sent-email').textContent = currentEmail;
+      spamNotice.hidden = false;
       showStep('step-code');
       document.getElementById('verify-status').className = 'status';
       document.getElementById('code').value = '';
@@ -77,12 +109,17 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
 
 document.getElementById('back-link').addEventListener('click', (e) => {
   e.preventDefault();
+  spamNotice.hidden = true;
   showStep('step-email');
 });
 
 document.getElementById('done-btn').addEventListener('click', () => {
   currentEmail = '';
-  document.getElementById('identifier').value = '';
+  identifierInput.value = '';
   document.getElementById('send-status').className = 'status';
+  document.getElementById('send-status').textContent = '';
+  document.getElementById('send-status').innerHTML = '';
+  gmailWarning.hidden = true;
+  spamNotice.hidden = true;
   showStep('step-email');
 });
