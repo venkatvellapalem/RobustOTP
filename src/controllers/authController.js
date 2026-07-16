@@ -10,24 +10,21 @@ async function send(req, res) {
     const { valid, normalized, error } = validateIdentifier(raw);
     if (!valid) return res.status(400).json({ message: error });
 
+    const user = await userRepository.findOrCreate(normalized);
+
+    const since = new Date(Date.now() - otpService.SEND_WINDOW_MS);
+    const recentCount = await otpRepository.countRecentByUser(user.id, since);
+    if (recentCount >= otpService.SEND_LIMIT) {
+      return res.status(429).json({ message: 'Too many OTP requests. Try again later.' });
+    }
+
     if (process.env.NODE_ENV === 'test') {
-      const user = await userRepository.findOrCreate(normalized);
       const otp = otpService.generateOTP();
       const hash = await otpService.hashOTP(otp);
       await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS));
       if (req.app._testLastOTPs) req.app._testLastOTPs.set(normalized, otp);
       console.log(`[OTP] ${normalized} → ${otp}`);
       return res.status(200).json({ message: 'OTP sent' });
-    }
-
-    const user = await userRepository.findOrCreate(normalized);
-
-    const since = new Date(Date.now() - otpService.SEND_WINDOW_MS);
-    const recentCount = await otpRepository.countRecentByUser(user.id, since);
-    if (recentCount >= otpService.SEND_LIMIT) {
-      return res.status(429).json({
-        message: `Too many OTP requests. Try again later.`,
-      });
     }
 
     const otp = otpService.generateOTP();
@@ -39,13 +36,23 @@ async function send(req, res) {
 
     const delivered = await emailService.sendOTP(normalized, otp);
     if (!delivered) {
-      return res.status(500).json({ message: 'Failed to send OTP' });
+      return res.status(500).json({
+        success: false,
+        provider: 'brevo',
+        message: 'Failed to send OTP email',
+        details: 'Email provider rejected or failed to deliver',
+      });
     }
 
     return res.status(200).json({ message: 'OTP sent successfully' });
   } catch (err) {
     console.error('[/auth/send error]', err);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({
+      success: false,
+      provider: 'brevo',
+      message: 'Internal server error',
+      details: err.message,
+    });
   }
 }
 

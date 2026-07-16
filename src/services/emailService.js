@@ -1,14 +1,15 @@
-const { Resend } = require('resend');
+const SibApiV3Sdk = require('@getbrevo/brevo');
 
-let resend = null;
+let apiInstance = null;
 let enabled = false;
+let configuredSender = '';
 
 function initEmail() {
   if (process.env.NODE_ENV === 'test') return;
 
-  const { RESEND_API_KEY, EMAIL_FROM } = process.env;
+  const { BREVO_API_KEY, EMAIL_FROM } = process.env;
   const missing = [];
-  if (!RESEND_API_KEY) missing.push('RESEND_API_KEY');
+  if (!BREVO_API_KEY) missing.push('BREVO_API_KEY');
   if (!EMAIL_FROM) missing.push('EMAIL_FROM');
 
   if (missing.length > 0) {
@@ -16,21 +17,27 @@ function initEmail() {
     process.exit(1);
   }
 
-  resend = new Resend(RESEND_API_KEY);
+  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  apiInstance.apiClient.authentications['api-key'].apiKey = BREVO_API_KEY;
+  configuredSender = EMAIL_FROM;
   enabled = true;
 }
 
 function isEmailEnabled() { return enabled; }
 
+function parseSender(sender) {
+  const match = sender.match(/^(.+?)\s*<(.+?)>$/);
+  if (match) return { name: match[1].trim(), email: match[2].trim() };
+  return { name: 'RobustOTP', email: sender };
+}
+
 async function sendOTP(email, otp) {
-  if (!resend) return false;
+  if (!apiInstance) return false;
   console.log(`[email] Sending OTP to ${email}...`);
   try {
-    const { error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Your RobustOTP verification code',
-      html: `<!DOCTYPE html>
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    sendSmtpEmail.subject = 'RobustOTP Verification Code';
+    sendSmtpEmail.htmlContent = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:40px 20px;">
@@ -52,20 +59,25 @@ async function sendOTP(email, otp) {
 <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 16px;">
 <p style="margin:0;font-size:11px;color:#9ca3af;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
 </td></tr>
-</table></td></tr></table></body></html>`,
-    });
+</table></td></tr></table></body></html>`;
+    sendSmtpEmail.sender = parseSender(configuredSender);
+    sendSmtpEmail.to = [{ email }];
 
-    if (error) {
-      console.error('[email] Failed: status=%s message=%s', error.statusCode, error.message);
-      if (error.stack) console.error(error.stack);
+    const { response, body } = await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    if (response && response.statusCode >= 400) {
+      console.error('[email] Failed: status=%s body=%j recipient=%s', response.statusCode, body, email);
       return false;
     }
 
-    console.log('[email] OTP email delivered');
+    console.log('[email] Delivered successfully');
     return true;
   } catch (err) {
-    console.error('[email] Failed: status=%s message=%s', err.statusCode || err.code, err.message);
-    console.error(err.stack);
+    const status = err.status || err.statusCode || err.code;
+    const body = err.response?.body || err.body || err.message;
+    const details = typeof body === 'object' ? JSON.stringify(body) : body;
+    console.error('[email] Failed: status=%s body=%s provider=brevo recipient=%s', status, details, email);
+    if (err.stack) console.error(err.stack);
     return false;
   }
 }

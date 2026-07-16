@@ -20,6 +20,15 @@ app.use(routes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+app.get('/health/email', (_req, res) => {
+  res.json({
+    provider: 'Brevo API',
+    api_configured: !!process.env.BREVO_API_KEY,
+    sender_configured: !!process.env.EMAIL_FROM,
+    enabled: isEmailEnabled(),
+  });
+});
+
 if (IS_TEST) {
   console.warn('[TEST MODE] Debug endpoints are active.');
 
@@ -57,7 +66,8 @@ initEmail();
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`\nRobustOTP — http://localhost:${PORT}`);
-    console.log(`EMAIL_FROM    : ${process.env.EMAIL_FROM || '(not set)'}`);
+    console.log(`Provider      : Brevo API`);
+    console.log(`Sender        : ${process.env.EMAIL_FROM || '(not set)'}`);
     console.log(`Email Enabled : ${isEmailEnabled() ? 'YES' : 'NO'}`);
     console.log(`Environment   : ${IS_TEST ? 'TEST' : process.env.NODE_ENV || 'production'}\n`);
   });
