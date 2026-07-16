@@ -1,8 +1,7 @@
-const SibApiV3Sdk = require('@getbrevo/brevo');
+const { BrevoClient } = require('@getbrevo/brevo');
 
-let apiInstance = null;
+let client = null;
 let enabled = false;
-let configuredSender = '';
 
 function initEmail() {
   if (process.env.NODE_ENV === 'test') return;
@@ -17,9 +16,7 @@ function initEmail() {
     process.exit(1);
   }
 
-  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-  apiInstance.apiClient.authentications['api-key'].apiKey = BREVO_API_KEY;
-  configuredSender = EMAIL_FROM;
+  client = new BrevoClient({ apiKey: BREVO_API_KEY });
   enabled = true;
 }
 
@@ -32,12 +29,14 @@ function parseSender(sender) {
 }
 
 async function sendOTP(email, otp) {
-  if (!apiInstance) return false;
+  if (!client) return false;
   console.log(`[email] Sending OTP to ${email}...`);
   try {
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    sendSmtpEmail.subject = 'RobustOTP Verification Code';
-    sendSmtpEmail.htmlContent = `<!DOCTYPE html>
+    const result = await client.transactionalEmails.sendTransacEmail({
+      sender: parseSender(process.env.EMAIL_FROM),
+      to: [{ email }],
+      subject: 'RobustOTP Verification Code',
+      htmlContent: `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:40px 20px;">
@@ -59,23 +58,14 @@ async function sendOTP(email, otp) {
 <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 16px;">
 <p style="margin:0;font-size:11px;color:#9ca3af;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
 </td></tr>
-</table></td></tr></table></body></html>`;
-    sendSmtpEmail.sender = parseSender(configuredSender);
-    sendSmtpEmail.to = [{ email }];
-
-    const { response, body } = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    if (response && response.statusCode >= 400) {
-      console.error('[email] Failed: status=%s body=%j recipient=%s', response.statusCode, body, email);
-      return false;
-    }
+</table></td></tr></table></body></html>`,
+    });
 
     console.log('[email] Delivered successfully');
     return true;
   } catch (err) {
-    const status = err.status || err.statusCode || err.code;
-    const body = err.response?.body || err.body || err.message;
-    const details = typeof body === 'object' ? JSON.stringify(body) : body;
+    const status = err.statusCode || err.code;
+    const details = typeof err.body === 'object' ? JSON.stringify(err.body) : (err.body || err.message);
     console.error('[email] Failed: status=%s body=%s provider=brevo recipient=%s', status, details, email);
     if (err.stack) console.error(err.stack);
     return false;
