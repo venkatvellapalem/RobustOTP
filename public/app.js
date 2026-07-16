@@ -1,41 +1,34 @@
 let currentEmail = '';
 
 function showStep(id) {
-  document.querySelectorAll('.step').forEach(s => {
-    s.classList.remove('active');
-  });
+  document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
   const el = document.getElementById(id);
-  if (el) {
-    el.classList.add('active');
-    const input = el.querySelector('input:not([readonly])');
-    if (input) setTimeout(() => input.focus(), 150);
-  }
+  if (el) el.style.display = 'block';
+  const input = el?.querySelector('input:not([readonly])');
+  if (input) setTimeout(() => input.focus(), 100);
 }
 
 const identifierInput = document.getElementById('identifier');
-const gmailNotice = document.getElementById('gmail-notice');
+const gmailWarning = document.getElementById('gmail-warning');
 const spamNotice = document.getElementById('spam-notice');
-const sendStatus = document.getElementById('send-status');
-const verifyStatus = document.getElementById('verify-status');
 
 function checkGmail() {
   const email = identifierInput.value.trim().toLowerCase();
-  gmailNotice.classList.toggle('visible', email.includes('@g'));
+  gmailWarning.hidden = !email.includes('@g');
 }
 
 identifierInput.addEventListener('input', checkGmail);
 
 document.getElementById('try-other-link').addEventListener('click', (e) => {
   e.preventDefault();
-  gmailNotice.classList.remove('visible');
+  gmailWarning.hidden = true;
   identifierInput.value = '';
   identifierInput.focus();
 });
 
 document.getElementById('resend-link').addEventListener('click', (e) => {
   e.preventDefault();
-  verifyStatus.className = 'status';
-  verifyStatus.classList.remove('visible');
+  document.getElementById('verify-status').className = 'status';
   document.getElementById('code').value = '';
   document.getElementById('send-form').dispatchEvent(new Event('submit', { cancelable: true }));
 });
@@ -43,11 +36,11 @@ document.getElementById('resend-link').addEventListener('click', (e) => {
 document.getElementById('send-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = e.target.querySelector('button');
+  const status = document.getElementById('send-status');
   btn.disabled = true;
-  sendStatus.className = 'status';
-  sendStatus.classList.remove('visible');
-  sendStatus.textContent = '';
-  sendStatus.innerHTML = '';
+  status.className = 'status';
+  status.textContent = '';
+  status.innerHTML = '';
 
   try {
     const { status: code, body } = await fetch('/auth/send', {
@@ -59,26 +52,23 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
     if (code === 200) {
       currentEmail = identifierInput.value.trim();
       document.getElementById('sent-email').textContent = currentEmail;
-      spamNotice.classList.add('visible');
+      spamNotice.hidden = false;
       showStep('step-code');
-      verifyStatus.className = 'status';
-      verifyStatus.classList.remove('visible');
+      document.getElementById('verify-status').className = 'status';
       document.getElementById('code').value = '';
     } else {
-      sendStatus.className = 'status error visible';
-      sendStatus.textContent = body.message || 'Something went wrong.';
+      status.className = 'status error';
+      status.textContent = body.message || 'Something went wrong.';
       if (body.details) {
         const detail = document.createElement('div');
-        detail.style.marginTop = '6px';
-        detail.style.fontSize = '12px';
-        detail.style.opacity = '.8';
+        detail.className = 'detail';
         detail.textContent = body.details;
-        sendStatus.appendChild(detail);
+        status.appendChild(detail);
       }
     }
   } catch {
-    sendStatus.className = 'status error visible';
-    sendStatus.textContent = 'Could not reach server. Is it running?';
+    status.className = 'status error';
+    status.textContent = 'Could not reach server. Is it running?';
   } finally {
     btn.disabled = false;
   }
@@ -87,9 +77,9 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
 document.getElementById('verify-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = e.target.querySelector('button');
+  const status = document.getElementById('verify-status');
   btn.disabled = true;
-  verifyStatus.className = 'status';
-  verifyStatus.classList.remove('visible');
+  status.className = 'status';
 
   try {
     const { status: code, body } = await fetch('/auth/verify', {
@@ -102,12 +92,12 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
       document.getElementById('token-display').value = body.session_token;
       showStep('step-done');
     } else {
-      verifyStatus.className = 'status error visible';
-      verifyStatus.textContent = body.message || 'Invalid code.';
+      status.className = 'status error';
+      status.textContent = body.message || 'Invalid code.';
     }
   } catch {
-    verifyStatus.className = 'status error visible';
-    verifyStatus.textContent = 'Could not reach server.';
+    status.className = 'status error';
+    status.textContent = 'Could not reach server.';
   } finally {
     btn.disabled = false;
   }
@@ -115,18 +105,17 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
 
 document.getElementById('back-link').addEventListener('click', (e) => {
   e.preventDefault();
-  spamNotice.classList.remove('visible');
+  spamNotice.hidden = true;
   showStep('step-email');
 });
 
 document.getElementById('done-btn').addEventListener('click', () => {
   currentEmail = '';
   identifierInput.value = '';
-  sendStatus.className = 'status';
-  sendStatus.classList.remove('visible');
-  sendStatus.textContent = '';
-  sendStatus.innerHTML = '';
-  gmailNotice.classList.remove('visible');
-  spamNotice.classList.remove('visible');
+  document.getElementById('send-status').className = 'status';
+  document.getElementById('send-status').textContent = '';
+  document.getElementById('send-status').innerHTML = '';
+  gmailWarning.hidden = true;
+  spamNotice.hidden = true;
   showStep('step-email');
 });
