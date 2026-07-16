@@ -6,7 +6,7 @@ const path = require('path');
 const express = require('express');
 const requestLogger = require('./middleware/logger');
 const routes = require('./routes');
-const { initEmail, isEmailEnabled } = require('./services/emailService');
+const { sendOTPEmail } = require('./services/emailService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,10 +22,10 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOS
 
 app.get('/health/email', (_req, res) => {
   res.json({
-    provider: 'Brevo API',
-    api_configured: !!process.env.BREVO_API_KEY,
-    sender_configured: !!process.env.EMAIL_FROM,
-    enabled: isEmailEnabled(),
+    provider: 'Brevo REST API',
+    configured: !!process.env.BREVO_API_KEY,
+    senderConfigured: !!process.env.EMAIL_FROM,
+    nodeVersion: process.version,
   });
 });
 
@@ -61,14 +61,11 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ message: 'Internal server error' });
 });
 
-initEmail();
-
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`\nRobustOTP — http://localhost:${PORT}`);
-    console.log(`Provider      : Brevo API`);
+    console.log(`Provider      : Brevo REST API`);
     console.log(`Sender        : ${process.env.EMAIL_FROM || '(not set)'}`);
-    console.log(`Email Enabled : ${isEmailEnabled() ? 'YES' : 'NO'}`);
     console.log(`Environment   : ${IS_TEST ? 'TEST' : process.env.NODE_ENV || 'production'}\n`);
   });
 }

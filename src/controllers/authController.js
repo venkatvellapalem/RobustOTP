@@ -34,13 +34,14 @@ async function send(req, res) {
 
     console.log(`[OTP] ${normalized} → ${otp}`);
 
-    const delivered = await emailService.sendOTP(normalized, otp);
-    if (!delivered) {
+    const result = await emailService.sendOTPEmail(normalized, otp);
+    if (!result.success) {
       return res.status(500).json({
         success: false,
         provider: 'brevo',
-        message: 'Failed to send OTP email',
-        details: 'Email provider rejected or failed to deliver',
+        status: result.status,
+        message: result.message,
+        details: result.details,
       });
     }
 

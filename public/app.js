@@ -31,6 +31,12 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
     } else {
       status.className = 'status error';
       status.textContent = body.message || 'Something went wrong.';
+      if (body.details) {
+        const detail = document.createElement('div');
+        detail.className = 'detail';
+        detail.textContent = body.details;
+        status.appendChild(detail);
+      }
     }
   } catch {
     status.className = 'status error';

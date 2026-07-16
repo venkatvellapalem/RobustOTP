@@ -1,42 +1,38 @@
-const { BrevoClient } = require('@getbrevo/brevo');
+'use strict';
 
-let client = null;
-let enabled = false;
+const BREVO_API = 'https://api.brevo.com/v3/smtp/email';
 
-function initEmail() {
-  if (process.env.NODE_ENV === 'test') return;
+function parseSender(raw) {
+  const m = raw.match(/^(.+?)\s*<(.+?)>$/);
+  if (m) return { name: m[1].trim(), email: m[2].trim() };
+  return { name: 'RobustOTP', email: raw };
+}
 
-  const { BREVO_API_KEY, EMAIL_FROM } = process.env;
-  const missing = [];
-  if (!BREVO_API_KEY) missing.push('BREVO_API_KEY');
-  if (!EMAIL_FROM) missing.push('EMAIL_FROM');
+async function sendOTPEmail(email, otp) {
+  const apiKey = process.env.BREVO_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM;
 
-  if (missing.length > 0) {
-    console.error(`Missing ${missing.join(', ')}`);
-    process.exit(1);
+  if (!apiKey) {
+    return { success: false, provider: 'brevo', status: 0, message: 'BREVO_API_KEY not set', details: '' };
+  }
+  if (!emailFrom) {
+    return { success: false, provider: 'brevo', status: 0, message: 'EMAIL_FROM not set', details: '' };
   }
 
-  client = new BrevoClient({ apiKey: BREVO_API_KEY });
-  enabled = true;
-}
+  const sender = parseSender(emailFrom);
 
-function isEmailEnabled() { return enabled; }
-
-function parseSender(sender) {
-  const match = sender.match(/^(.+?)\s*<(.+?)>$/);
-  if (match) return { name: match[1].trim(), email: match[2].trim() };
-  return { name: 'RobustOTP', email: sender };
-}
-
-async function sendOTP(email, otp) {
-  if (!client) return false;
-  console.log(`[email] Sending OTP to ${email}...`);
   try {
-    const result = await client.transactionalEmails.sendTransacEmail({
-      sender: parseSender(process.env.EMAIL_FROM),
-      to: [{ email }],
-      subject: 'RobustOTP Verification Code',
-      htmlContent: `<!DOCTYPE html>
+    const res = await fetch(BREVO_API, {
+      method: 'POST',
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender,
+        to: [{ email }],
+        subject: 'RobustOTP Verification Code',
+        htmlContent: `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:40px 20px;">
@@ -59,17 +55,35 @@ async function sendOTP(email, otp) {
 <p style="margin:0;font-size:11px;color:#9ca3af;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
 </td></tr>
 </table></td></tr></table></body></html>`,
+      }),
     });
 
-    console.log('[email] Delivered successfully');
-    return true;
+    const body = await res.json();
+
+    if (!res.ok) {
+      const brevoMsg = body.message || body.code || 'Unknown Brevo error';
+      console.error('[email] Failed: status=%s body=%j recipient=%s', res.status, body, email);
+      return {
+        success: false,
+        provider: 'brevo',
+        status: res.status,
+        message: brevoMsg,
+        details: JSON.stringify(body),
+      };
+    }
+
+    console.log('[email] Delivered successfully messageId=%s recipient=%s', body.messageId, email);
+    return { success: true, provider: 'brevo', messageId: body.messageId };
   } catch (err) {
-    const status = err.statusCode || err.code;
-    const details = typeof err.body === 'object' ? JSON.stringify(err.body) : (err.body || err.message);
-    console.error('[email] Failed: status=%s body=%s provider=brevo recipient=%s', status, details, email);
-    if (err.stack) console.error(err.stack);
-    return false;
+    console.error('[email] Failed: network error recipient=%s error=%s', email, err.message);
+    return {
+      success: false,
+      provider: 'brevo',
+      status: 0,
+      message: err.message,
+      details: '',
+    };
   }
 }
 
-module.exports = { initEmail, isEmailEnabled, sendOTP };
+module.exports = { sendOTPEmail };
