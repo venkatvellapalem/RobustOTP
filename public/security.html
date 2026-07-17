@@ -255,27 +255,27 @@
     <div class="grid">
       <div class="card">
         <h2>Zero-Knowledge Hashing</h2>
-        <p>We never store plaintext codes in our database. Every OTP token is converted into a secure cryptographic hash instantly. Even in the event of a total database breach, attackers find absolutely nothing to exploit.</p>
+        <p>We transform every authentication token into a secure cryptographic hash instantly before storage. In the event of a total database breach, intruders find absolutely nothing to exploit, keeping your database completely bulletproof.</p>
       </div>
       <div class="card">
         <h2>Device Fingerprint Binding</h2>
-        <p>Authentication codes are mathematically bound to the client's IP and browser fingerprint at request time. Verification requests from mismatched devices are rejected instantly, neutralizing interception and session hijacking attacks.</p>
+        <p>Every verification code is mathematically bound to the unique hardware and network footprint of the requesting browser. Attempts to verify a code from a mismatched device are rejected instantly, neutralizing interception attacks.</p>
       </div>
       <div class="card">
         <h2>Instant Threat Lockout</h2>
-        <p>If an attacker tries to brute-force a code, the validation session locks down permanently after five failed attempts. Used credentials are automatically revoked to prevent replay attacks.</p>
+        <p>If a bad actor attempts to guess a verification code, the validation session locks down permanently after a few failed attempts. Spent credentials are automatically revoked to prevent replay attacks.</p>
       </div>
       <div class="card">
         <h2>Exponential Backoff Delay</h2>
-        <p>The gateway dynamically increases wait times between consecutive code requests. With progressive intervals (10s on the second attempt, 30s on the third), bulk automation and credential spamming are completely throttled.</p>
+        <p>The gateway dynamically increases the mandatory wait times between consecutive request attempts. Progressive delay intervals ensure that bulk automated scanning and credential flooding are throttled at the gate.</p>
       </div>
       <div class="card">
         <h2>Silent Honeypot Shield</h2>
-        <p>Requests exceeding window limits are routed to a mock success gateway. Attack scripts receive realistic confirmations while the database and Brevo API calls are bypassed entirely, saving your billing budget.</p>
+        <p>Excessive requests are seamlessly routed to a mock success page. Attack bots receive realistic confirmations while database writes and email dispatch API billing are bypassed entirely to preserve your budget.</p>
       </div>
       <div class="card">
         <h2>Zero-Footprint Purge</h2>
-        <p>To ensure database efficiency and eliminate data tracking trails, our background runner automatically scrubs expired and verified codes within 5 minutes. Your storage footprint stays minimal and secure.</p>
+        <p>Our background cleaner continuously scrubs expired hashes and verified tokens within minutes. This keeps your system lightweight and ensures that no sensitive historical trace is left behind for attackers.</p>
       </div>
     </div>
 
