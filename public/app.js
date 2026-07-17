@@ -14,7 +14,14 @@ const spamNotice = document.getElementById('spam-notice');
 
 function checkGmail() {
   const email = identifierInput.value.trim().toLowerCase();
-  gmailWarning.hidden = !email.includes('@g');
+  const atIdx = email.lastIndexOf('@');
+  if (atIdx === -1) {
+    gmailWarning.hidden = true;
+    return;
+  }
+  const domain = email.substring(atIdx + 1);
+  // ponytail: minimal matching logic for gmail prefix to avoid regex parsing overhead.
+  gmailWarning.hidden = !(domain && 'gmail.com'.startsWith(domain));
 }
 
 identifierInput.addEventListener('input', checkGmail);
