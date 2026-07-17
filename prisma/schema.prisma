@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url = "file:./dev.db"
 }
 
 model User {
-  id        String    @id @default(uuid()) @db.Uuid
+  id        String    @id @default(uuid())
   email     String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -16,8 +16,8 @@ model User {
 }
 
 model OtpCode {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
+  id        String   @id @default(uuid())
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
   otpHash   String
   purpose   String   @default("auth")
