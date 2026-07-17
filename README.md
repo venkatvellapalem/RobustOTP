@@ -10,6 +10,6 @@
   <code>~/security</code><br/>
   <sub>Check out our security & integration guide →</sub><br/><br/>
   <a href="https://robust-otp-cytrus.vercel.app/security">
-    <img src="./assets/security.png" alt="Portfolio Preview" width="800"/>
+    <img src="./assets/security-.png" alt="Portfolio Preview" width="800"/>
   </a>
 </p>
