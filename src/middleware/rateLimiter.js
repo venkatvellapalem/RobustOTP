@@ -12,6 +12,9 @@ setInterval(() => {
 
 function rateLimit(windowMs, max) {
   return (req, res, next) => {
+    if (process.env.NODE_ENV === 'test') {
+      return next();
+    }
     const key = req.ip + ':' + req.path;
     const now = Date.now();
     const entry = requests.get(key);

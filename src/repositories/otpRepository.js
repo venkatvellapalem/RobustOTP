@@ -1,8 +1,15 @@
 const prisma = require('../config/prisma');
 
-async function create(userId, otpHash, purpose, expiresAt) {
+async function create(userId, otpHash, purpose, expiresAt, clientFingerprint = null) {
   return prisma.otpCode.create({
-    data: { userId, otpHash, purpose, expiresAt },
+    data: { userId, otpHash, purpose, expiresAt, clientFingerprint },
+  });
+}
+
+async function findLatest(userId) {
+  return prisma.otpCode.findFirst({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
   });
 }
 
@@ -53,6 +60,6 @@ async function deleteExpired() {
 }
 
 module.exports = {
-  create, findLatestUnverified, incrementAttempts,
+  create, findLatest, findLatestUnverified, incrementAttempts,
   markVerified, invalidatePrevious, countRecentByUser, deleteExpired,
 };

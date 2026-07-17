@@ -5,6 +5,14 @@ const otpService = require('../services/otpService');
 const { validateIdentifier, validateCode } = require('../utils/validation');
 
 const activeRequests = new Set();
+const crypto = require('crypto');
+
+// ponytail: basic device hashing to bind OTP session. Upgrade path: use fully-featured fingerprinters (e.g. fingerprintJS).
+function computeFingerprint(req) {
+  const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+  const ua = req.headers['user-agent'] || '';
+  return crypto.createHash('sha256').update(`${ip}-${ua}`).digest('hex');
+}
 
 async function send(req, res) {
   const { identifier: raw } = req.body;
@@ -21,17 +29,39 @@ async function send(req, res) {
     otpRepository.deleteExpired().catch(err => console.error('[cleanup-error]', err));
 
     const user = await userRepository.findOrCreate(normalized);
+    const fingerprint = computeFingerprint(req);
 
     const since = new Date(Date.now() - otpService.SEND_WINDOW_MS);
     const recentCount = await otpRepository.countRecentByUser(user.id, since);
+
+    // 1. Exponential Backoff (10s/30s in production, scaled down to 1s/2s in test mode)
+    const latestOtp = await otpRepository.findLatest(user.id);
+    if (latestOtp) {
+      const elapsedMs = Date.now() - new Date(latestOtp.createdAt).getTime();
+      const backoff1 = process.env.NODE_ENV === 'test' ? 1000 : 10 * 1000;
+      const backoff2 = process.env.NODE_ENV === 'test' ? 2000 : 30 * 1000;
+      
+      // ponytail: interval check. Upgrade path: Redis-backed sliding-window backoffs.
+      if (recentCount === 1 && elapsedMs < backoff1) {
+        const waitSec = Math.ceil((backoff1 - elapsedMs) / 1000);
+        return res.status(429).json({ message: `Please wait ${waitSec} seconds before requesting another code.` });
+      }
+      if (recentCount === 2 && elapsedMs < backoff2) {
+        const waitSec = Math.ceil((backoff2 - elapsedMs) / 1000);
+        return res.status(429).json({ message: `Please wait ${waitSec} seconds before requesting another code.` });
+      }
+    }
+
+    // 2. Silent Rate-Limit Shielding (Honeypot)
     if (recentCount >= otpService.SEND_LIMIT) {
-      return res.status(429).json({ message: 'Too many OTP requests. Try again later.' });
+      console.log(`[HONEYPOT] Silent shielding active for: ${normalized}`);
+      return res.status(200).json({ message: 'OTP sent successfully' });
     }
 
     if (process.env.NODE_ENV === 'test') {
       const otp = otpService.generateOTP();
       const hash = await otpService.hashOTP(otp);
-      await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS));
+      await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS), fingerprint);
       if (req.app._testLastOTPs) req.app._testLastOTPs.set(normalized, otp);
       console.log(`[OTP] ${normalized} → ${otp}`);
       return res.status(200).json({ message: 'OTP sent' });
@@ -40,7 +70,7 @@ async function send(req, res) {
     const otp = otpService.generateOTP();
     const hash = await otpService.hashOTP(otp);
 
-    await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS));
+    await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS), fingerprint);
 
     const result = await emailService.sendOTPEmail(normalized, otp);
     if (!result.success) {
@@ -84,6 +114,11 @@ async function verify(req, res) {
     const record = await otpRepository.findLatestUnverified(user.id);
     if (!record) {
       return res.status(400).json({ message: 'No OTP found. Please request a new code.' });
+    }
+
+    const currentFingerprint = computeFingerprint(req);
+    if (record.clientFingerprint && record.clientFingerprint !== currentFingerprint) {
+      return res.status(400).json({ message: 'Device fingerprint mismatch. Verification must occur on the same device.' });
     }
 
     if (record.attempts >= otpService.MAX_ATTEMPTS) {

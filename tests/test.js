@@ -20,6 +20,10 @@ let failed = 0;
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function post(path, body) {
+  return postWithHeaders(path, body);
+}
+
+function postWithHeaders(path, body, headers = {}) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify(body);
     const options = {
@@ -27,10 +31,10 @@ function post(path, body) {
       port:     PORT,
       path,
       method:   'POST',
-      headers:  {
+      headers:  Object.assign({
         'Content-Type':   'application/json',
         'Content-Length': Buffer.byteLength(payload),
-      },
+      }, headers),
     };
     const req = http.request(options, (res) => {
       let data = '';
@@ -203,7 +207,61 @@ async function testNoOTPRecord() {
   assert(r.status === 400, 'Verify without prior send → 400');
 }
 
+async function testDeviceFingerprint() {
+  console.log('\n▸ Device Fingerprint Binding');
+  const email = `fingerprint_${Date.now()}@example.com`;
+  
+  // 1. Send OTP with Device-A User-Agent
+  await postWithHeaders('/auth/send', { identifier: email }, { 'User-Agent': 'Device-A' });
+  const otp = await getLastOTP(email);
+  
+  // 2. Try verifying with Device-B User-Agent (mismatch)
+  const r1 = await postWithHeaders('/auth/verify', { identifier: email, code: otp }, { 'User-Agent': 'Device-B' });
+  assert(r1.status === 400 && r1.body.message.includes('fingerprint mismatch'), 'Verify with mismatched User-Agent → 400 (Fingerprint Mismatch)');
+  
+  // 3. Verify with Device-A User-Agent (match)
+  const r2 = await postWithHeaders('/auth/verify', { identifier: email, code: otp }, { 'User-Agent': 'Device-A' });
+  assert(r2.status === 200, 'Verify with correct User-Agent → 200');
+}
 
+async function testExponentialBackoff() {
+  console.log('\n▸ Exponential Backoff Delay');
+  const email = `backoff_${Date.now()}@example.com`;
+  
+  // 1st request -> immediate
+  const r1 = await post('/auth/send', { identifier: email });
+  assert(r1.status === 200, '1st send → 200');
+  
+  // 2nd request immediately -> 429 backoff error
+  const r2 = await post('/auth/send', { identifier: email });
+  assert(r2.status === 429 && r2.body.message.includes('Please wait'), '2nd send immediately → 429 Backoff Lockout');
+}
+
+async function testHoneypot() {
+  console.log('\n▸ Silent Rate-Limit Shielding (Honeypot)');
+  const email = `honeypot_${Date.now()}@example.com`;
+  
+  // Send 1 -> 200
+  await post('/auth/send', { identifier: email });
+  
+  // Wait 1.1s (scaled test backoff), Send 2 -> 200
+  await new Promise(resolve => setTimeout(resolve, 1100));
+  await post('/auth/send', { identifier: email });
+  const otp2 = await getLastOTP(email);
+  
+  // Wait 2.1s (scaled test backoff), Send 3 -> 200
+  await new Promise(resolve => setTimeout(resolve, 2100));
+  await post('/auth/send', { identifier: email });
+  const otp3 = await getLastOTP(email);
+  
+  // Send 4 immediately (violates rate limit of 3 per window) -> should trigger silent honeypot
+  const r4 = await post('/auth/send', { identifier: email });
+  assert(r4.status === 200 && r4.body.message.includes('successfully'), '4th send in window → 200 (Silent Honeypot)');
+  
+  // Try fetching last OTP for honeypotted request -> should still return the previous OTP (no new code generated!)
+  const otp4 = await getLastOTP(email);
+  assert(otp4 === otp3, 'Honeypotted send did not register a new OTP in cache');
+}
 
 // ── Run All ───────────────────────────────────────────────────────────────────
 
@@ -220,6 +278,9 @@ async function run() {
     await testSendRateLimit();
     await testCodeExpiry();
     await testNoOTPRecord();
+    await testDeviceFingerprint();
+    await testExponentialBackoff();
+    await testHoneypot();
 
   } catch (err) {
     console.error('\n[FATAL] Could not connect to server:', err.message);
