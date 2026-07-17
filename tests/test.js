@@ -1,13 +1,15 @@
 /**
  * test.js
  * Automated test suite for the Abuse-Resistant OTP System.
- * Uses Node's built-in http module — no test framework required.
+ * Uses Node's built-in http module - no test framework required.
  *
  * Run: node tests/test.js
  * (Server must be running on PORT 3000 or set TEST_PORT env var)
  */
 
 'use strict';
+
+require('dotenv').config();
 
 const http = require('http');
 
@@ -60,6 +62,28 @@ function get(path) {
         catch { resolve({ status: res.statusCode, body: data }); }
       });
     }).on('error', reject);
+  });
+}
+
+function getWithHeaders(path, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'localhost',
+      port:     PORT,
+      path,
+      method:   'GET',
+      headers,
+    };
+    const req = http.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+        catch (e) { resolve({ status: res.statusCode, body: data }); }
+      });
+    });
+    req.on('error', reject);
+    req.end();
   });
 }
 
@@ -263,11 +287,30 @@ async function testHoneypot() {
   assert(otp4 === otp3, 'Honeypotted send did not register a new OTP in cache');
 }
 
+async function testCronJob() {
+  console.log('\n▸ Scheduled Keep-Alive Cron Job');
+
+  const cronSecret = process.env.CRON_SECRET || 'test_secret';
+
+  // 1. Without Auth Header -> 401
+  let r = await get('/api/cron');
+  assert(r.status === 401, 'Cron GET /api/cron without Authorization header → 401');
+
+  // 2. With Invalid Auth Header -> 401
+  r = await getWithHeaders('/api/cron', { 'Authorization': 'Bearer wrong_secret' });
+  assert(r.status === 401, 'Cron GET /api/cron with invalid Bearer token → 401');
+
+  // 3. With Correct Auth Header -> 200
+  r = await getWithHeaders('/api/cron', { 'Authorization': `Bearer ${cronSecret}` });
+  assert(r.status === 200, 'Cron GET /api/cron with correct Bearer token → 200');
+  assert(r.body.message === 'Keep-alive run completed', 'Cron body message indicates successful execution');
+}
+
 // ── Run All ───────────────────────────────────────────────────────────────────
 
 async function run() {
   console.log('══════════════════════════════════════════');
-  console.log('  Abuse-Resistant OTP System — Test Suite');
+  console.log('  Abuse-Resistant OTP System - Test Suite');
   console.log('══════════════════════════════════════════');
 
   try {
@@ -281,6 +324,7 @@ async function run() {
     await testDeviceFingerprint();
     await testExponentialBackoff();
     await testHoneypot();
+    await testCronJob();
 
   } catch (err) {
     console.error('\n[FATAL] Could not connect to server:', err.message);

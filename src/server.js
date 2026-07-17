@@ -75,7 +75,7 @@ const { rateLimit } = require('./middleware/rateLimiter');
 
 app.get('/api/cron', rateLimit(60 * 60 * 1000, 5), async (req, res) => {
   const authHeader = req.headers.authorization;
-  const cronSecret = process.env.CRON_SECRET;
+  const cronSecret = process.env.CRON_SECRET || (IS_TEST ? 'test_secret' : null);
 
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return res.status(401).json({ message: 'Unauthorized' });
