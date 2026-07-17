@@ -92,6 +92,7 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
   status.textContent = '';
   status.innerHTML = '';
 
+  let success = false;
   try {
     const { status: code, body } = await fetch('/auth/send', {
       method: 'POST',
@@ -106,6 +107,7 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
       showStep('step-code');
       document.getElementById('verify-status').className = 'status';
       document.getElementById('code').value = '';
+      success = true;
     } else {
       status.className = 'status error';
       status.textContent = body.message || 'Something went wrong.';
@@ -120,9 +122,11 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
     status.className = 'status error';
     status.textContent = 'Could not reach server. Is it running?';
   } finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
-    isSending = false;
+    if (!success) {
+      btn.disabled = false;
+      btn.textContent = originalText;
+      isSending = false;
+    }
   }
 });
 
@@ -167,6 +171,12 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
 document.getElementById('back-link').addEventListener('click', (e) => {
   e.preventDefault();
   spamNotice.hidden = true;
+  const sendBtn = document.querySelector('#send-form button');
+  if (sendBtn) {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send Verification Code';
+  }
+  isSending = false;
   showStep('step-email');
 });
 
@@ -178,6 +188,12 @@ document.getElementById('done-btn').addEventListener('click', () => {
   document.getElementById('send-status').innerHTML = '';
   gmailWarning.hidden = true;
   spamNotice.hidden = true;
+  const sendBtn = document.querySelector('#send-form button');
+  if (sendBtn) {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send Verification Code';
+  }
+  isSending = false;
   showStep('step-email');
 });
 
