@@ -31,6 +31,10 @@ app.use(routes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+app.get('/security', (_req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'security.html'));
+});
+
 app.get('/health/email', (_req, res) => {
   res.json({
     provider: 'Brevo REST API',

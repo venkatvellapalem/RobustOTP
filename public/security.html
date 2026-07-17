@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RobustOTP Security & Integration Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><text x=%2250%22 y=%2268%22 text-anchor=%22middle%22 font-size=%2260%22 font-family=%22-system-ui,sans-serif%22 font-weight=%22700%22 fill=%22%23fff%22>R</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #090d16;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      color: #fbbf24;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .lead {
+      color: #9ca3af;
+      font-size: 15px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card p {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #9ca3af;
+    }
+    .badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #1f2937;
+      color: #818cf8;
+      border: 1px solid #374151;
+    }
+    .full-width-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .full-width-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 16px;
+    }
+    .code-block {
+      background: #090d16;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e5e7eb;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+    .support-box {
+      background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .support-box h3 {
+      font-size: 18px;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+    .support-box p {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+    .support-email {
+      display: inline-block;
+      padding: 10px 20px;
+      background: linear-gradient(180deg, #4f46e5 0%, #4338ca 100%);
+      color: #ffffff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .support-email:hover {
+      background: linear-gradient(180deg, #4338ca 0%, #3730a3 100%);
+      transform: translateY(-1px);
+    }
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      font-size: 13px;
+    }
+    footer a {
+      color: #9ca3af;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover {
+      color: #4f46e5;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="logo-badge">&#10004;</div>
+      <h1>RobustOTP Security Architecture</h1>
+      <p class="lead">Enterprise-level abuse resistant authentication parameters</p>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Cryptographic Hashing <span class="badge">Bcrypt</span></h2>
+        <p>Plaintext OTP codes are never written to disk or logged. They are stored as Bcrypt hashes (using a cost parameter of 12) immediately upon generation. Comparison is performed in constant time to defeat side-channel timing analysis.</p>
+      </div>
+      <div class="card">
+        <h2>CSPRNG Generation <span class="badge">Secure Random</span></h2>
+        <p>Verification keys are generated using a cryptographically secure pseudorandom number generator (CSPRNG via Node's <code>crypto.randomInt</code>). This ensures complete unpredictability and guards against sequence scanning.</p>
+      </div>
+      <div class="card">
+        <h2>Brute Force Lockout <span class="badge">Auto Lock</span></h2>
+        <p>To secure the numeric space, OTP sessions automatically lock after 5 failed verification attempts. Expired or used sessions are immediately invalidated to prevent reuse or replay attacks.</p>
+      </div>
+      <div class="card">
+        <h2>Dynamic Rate Limiting <span class="badge">IP Guard</span></h2>
+        <p>Includes built-in IP-based rate limiting on all login routes, combined with client limits of 3 requests per 5 minutes to prevent email flooding abuse and resource exhaustion.</p>
+      </div>
+    </div>
+
+    <div class="full-width-card">
+      <h2>One-Click Local Installation & Verification</h2>
+      <p style="font-size:14px; color:#9ca3af; margin-bottom:16px;">Run this command in your PowerShell terminal to automatically download, install dependencies, configure, start, and run verification tests on your machine:</p>
+      <div class="code-block">
+        irm https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.ps1 | iex
+      </div>
+      <p style="font-size:13px; color:#6b7280;">For Linux/macOS users: <code>curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</code></p>
+    </div>
+
+    <div class="full-width-card">
+      <h2>API Verification Guide (Backend Integration)</h2>
+      <p style="font-size:14px; color:#9ca3af; margin-bottom:16px;">Verify a user session token returned by the RobustOTP API on your backend application:</p>
+      <div class="code-block">
+// Express.js verification example
+const fetch = require('node-fetch');
+
+app.post('/api/auth-check', async (req, res) => {
+  const { identifier, code } = req.body;
+  const response = await fetch('https://robust-otp-cytrus.vercel.app/auth/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, code })
+  });
+  
+  if (response.status === 200) {
+    const { session_token } = await response.json();
+    return res.json({ success: true, session_token });
+  }
+  return res.status(401).json({ success: false, message: 'Invalid or expired OTP' });
+});
+      </div>
+    </div>
+
+    <div class="support-box">
+      <h3>Need Help Binding to Your System?</h3>
+      <p>I can help you integrate this secure OTP verification flow into your custom web application, cloud infrastructure, or corporate environment for free.</p>
+      <a href="mailto:venkatvellapalem@gmail.com" class="support-email">Contact Venkat (venkatvellapalem@gmail.com)</a>
+    </div>
+
+    <footer>
+      <a href="/">&larr; Back to Auth Demonstration</a>
+    </footer>
+  </div>
+</body>
+</html>

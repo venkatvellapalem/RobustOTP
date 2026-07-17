@@ -1,5 +1,7 @@
 'use strict';
 
+const nodemailer = require('nodemailer');
+
 const BREVO_API = 'https://api.brevo.com/v3/smtp/email';
 
 function parseSender(raw) {
@@ -9,11 +11,65 @@ function parseSender(raw) {
 }
 
 async function sendOTPEmail(email, otp) {
-  const apiKey = process.env.BREVO_API_KEY;
+  const smtpHost = process.env.SMTP_HOST;
   const emailFrom = process.env.EMAIL_FROM;
 
+  const htmlContent = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#090d16;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090d16;padding:40px 20px;">
+<tr><td align="center">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#111827;border-radius:16px;overflow:hidden;border:1px solid #1f2937;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+<tr><td style="padding:40px 40px 0;text-align:center;">
+<div style="width:48px;height:48px;background:linear-gradient(135deg, #4f46e5, #7c3aed);border-radius:12px;text-align:center;line-height:48px;display:inline-block;margin-bottom:16px;">
+  <span style="color:#fbbf24;font-size:24px;font-weight:bold;">&#10004;</span>
+</div>
+<h1 style="margin:0 0 8px;font-size:20px;color:#ffffff;font-weight:600;">RobustOTP</h1>
+<p style="margin:0 0 24px;font-size:14px;color:#9ca3af;">Your verification code</p>
+</td></tr>
+<tr><td style="padding:0 40px;text-align:center;">
+<div style="background:#1f2937;border:1px solid #374151;border-radius:12px;padding:28px 20px;margin-bottom:24px;">
+<span style="font-size:42px;letter-spacing:8px;font-weight:700;color:#ffffff;font-family:monospace;">${otp}</span></div>
+<p style="margin:0 0 8px;font-size:14px;color:#e5e7eb;">Enter this code to complete your verification.</p>
+<p style="margin:0 0 4px;font-size:13px;color:#9ca3af;">This code expires in <strong style="color:#ffffff;">5 minutes</strong>.</p>
+<p style="margin:0 0 32px;font-size:12px;color:#9ca3af;">If you didn't request this, you can safely ignore this email.</p>
+</td></tr>
+<tr><td style="padding:0 40px 32px;">
+<hr style="border:none;border-top:1px solid #1f2937;margin:0 0 16px;">
+<p style="margin:0;font-size:11px;color:#6b7280;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
+</td></tr>
+</table></td></tr></table></body></html>`;
+
+  if (smtpHost) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: parseInt(process.env.SMTP_PORT || '587', 10),
+        secure: process.env.SMTP_PORT === '465',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: emailFrom || `"RobustOTP" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: 'RobustOTP Verification Code',
+        html: htmlContent,
+      });
+
+      console.log('[email] Delivered via SMTP messageId=%s recipient=%s', info.messageId, email);
+      return { success: true, provider: 'smtp', messageId: info.messageId };
+    } catch (err) {
+      console.error('[email] SMTP delivery failed: recipient=%s error=%s', email, err.message);
+      return { success: false, provider: 'smtp', message: err.message };
+    }
+  }
+
+  const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) {
-    return { success: false, provider: 'brevo', status: 0, message: 'BREVO_API_KEY not set', details: '' };
+    return { success: false, provider: 'brevo', status: 0, message: 'SMTP_HOST or BREVO_API_KEY not set', details: '' };
   }
   if (!emailFrom) {
     return { success: false, provider: 'brevo', status: 0, message: 'EMAIL_FROM not set', details: '' };
@@ -32,29 +88,7 @@ async function sendOTPEmail(email, otp) {
         sender,
         to: [{ email }],
         subject: 'RobustOTP Verification Code',
-        htmlContent: `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:40px 20px;">
-<tr><td align="center">
-<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
-<tr><td style="padding:40px 40px 0;text-align:center;">
-<div style="width:48px;height:48px;background:linear-gradient(135deg, #4f46e5, #7c3aed);border-radius:12px;text-align:center;line-height:48px;display:inline-block;margin-bottom:16px;"><span style="color:#fbbf24;font-size:24px;font-weight:bold;">&#10004;</span></div>
-<h1 style="margin:0 0 8px;font-size:20px;color:#1a1a2e;font-weight:600;">RobustOTP</h1>
-<p style="margin:0 0 24px;font-size:14px;color:#6b7280;">Your verification code</p>
-</td></tr>
-<tr><td style="padding:0 40px;text-align:center;">
-<div style="background:#f8f9fc;border-radius:12px;padding:28px 20px;margin-bottom:24px;">
-<span style="font-size:42px;letter-spacing:8px;font-weight:700;color:#1a1a2e;font-family:monospace;">${otp}</span></div>
-<p style="margin:0 0 8px;font-size:14px;color:#374151;">Enter this code to complete your verification.</p>
-<p style="margin:0 0 4px;font-size:13px;color:#9ca3af;">This code expires in <strong style="color:#6b7280;">5 minutes</strong>.</p>
-<p style="margin:0 0 32px;font-size:12px;color:#9ca3af;">If you didn't request this, you can safely ignore this email.</p>
-</td></tr>
-<tr><td style="padding:0 40px 32px;">
-<hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 16px;">
-<p style="margin:0;font-size:11px;color:#9ca3af;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
-</td></tr>
-</table></td></tr></table></body></html>`,
+        htmlContent,
       }),
     });
 
