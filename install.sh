@@ -80,7 +80,7 @@ sleep 3
 
 # Run tests
 set +e
-node tests/test.js
+node tests/test.js > /dev/null 2>&1
 TEST_EXIT_CODE=$?
 set -e
 
@@ -93,12 +93,12 @@ echo -e "\033[1;34m   Setup Completed successfully!\033[0m"
 echo -e "\033[1;34m==========================================\033[0m"
 
 echo -e "\n\033[1;32m[info] Launching local verification demo...\033[0m"
-NODE_ENV=production node src/server.js > /dev/null 2>&1 &
+NODE_ENV=production node src/server.js &
 sleep 2
 if command -v xdg-open > /dev/null; then
-    xdg-open "http://localhost:3000"
+    xdg-open "http://localhost:3000" > /dev/null 2>&1
 elif command -v open > /dev/null; then
-    open "http://localhost:3000"
+    open "http://localhost:3000" > /dev/null 2>&1
 fi
 
 exit $TEST_EXIT_CODE
