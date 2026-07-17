@@ -16,6 +16,27 @@ let warningDismissed = false;
 let isSending = false;
 let isVerifying = false;
 
+const limitModal = document.getElementById('demo-limit-modal');
+const closeLimitModal = document.getElementById('close-limit-modal');
+
+function getVerifyCount() {
+  return parseInt(localStorage.getItem('robust_otp_verify_count') || '0', 10);
+}
+
+function checkDemoLimit() {
+  if (getVerifyCount() >= 5) {
+    if (limitModal) limitModal.style.display = 'flex';
+    return true;
+  }
+  return false;
+}
+
+if (closeLimitModal) {
+  closeLimitModal.addEventListener('click', () => {
+    if (limitModal) limitModal.style.display = 'none';
+  });
+}
+
 function checkGmail() {
   const email = identifierInput.value.trim().toLowerCase();
   const atIdx = email.lastIndexOf('@');
@@ -59,6 +80,7 @@ document.getElementById('resend-link').addEventListener('click', (e) => {
 
 document.getElementById('send-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (checkDemoLimit()) return;
   if (isSending) return;
   isSending = true;
   const btn = e.target.querySelector('button');
@@ -125,6 +147,9 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
     if (code === 200) {
       document.getElementById('token-display').value = body.session_token;
       showStep('step-done');
+      const nextCount = getVerifyCount() + 1;
+      localStorage.setItem('robust_otp_verify_count', nextCount.toString());
+      setTimeout(checkDemoLimit, 800);
     } else {
       status.className = 'status error';
       status.textContent = body.message || 'Invalid code.';
@@ -193,4 +218,5 @@ async function checkHealth() {
 window.addEventListener('DOMContentLoaded', () => {
   showStep('step-email');
   checkHealth();
+  checkDemoLimit();
 });

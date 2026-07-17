@@ -72,3 +72,10 @@ finally {
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "   Setup Completed successfully!" -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
+
+Write-Host ""
+Write-Host "[info] Launching local verification demo..." -ForegroundColor Green
+$env:NODE_ENV="production"
+Start-Process node -ArgumentList "src/server.js" -NoNewWindow
+Start-Sleep -Seconds 2
+Start-Process "http://localhost:3000"

@@ -82,6 +82,30 @@
   <div class="cta-banner">
     Wanna see our product in your environment? <a href="/security">Check out our security & integration guide &rarr;</a>
   </div>
+  <div id="demo-limit-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <h3>Demo Verification Limit Reached</h3>
+      <p>You have successfully completed 5 verification cycles on the RobustOTP demo container.</p>
+      <p>To deploy this authentication service in your environment, you must configure your own email carrier (SMTP/Brevo/Resend).</p>
+      
+      <div class="setup-guide-box">
+        <h4>Required Configuration Steps:</h4>
+        <ol>
+          <li>Create an account with Brevo, Resend, or your preferred SMTP provider.</li>
+          <li>Retrieve your SMTP Host, Port, and secure Username/Password.</li>
+          <li>Configure these environment variables in your server's <code>.env</code> file.</li>
+        </ol>
+      </div>
+      
+      <p class="stuck-text">Stuck in configuring? Let's get it solved together.</p>
+      
+      <div class="modal-actions">
+        <a href="mailto:venkatvellapalem@gmail.com?subject=RobustOTP%20SMTP%20Configuration%20Support&body=Hey%2C%20we'd%20love%20some%20help%20configuring%20our%20SMTP%20carrier%20for%20RobustOTP." class="btn-primary" style="display:block; text-decoration:none; margin-bottom:12px; line-height:22px; text-align:center;">Get Configuration Support</a>
+        <button type="button" id="close-limit-modal" class="btn-secondary">Dismiss Demo Limit</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/app.js?v=2.0.1"></script>
 </body>
 </html>

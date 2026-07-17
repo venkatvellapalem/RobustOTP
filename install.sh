@@ -70,4 +70,13 @@ echo -e "\033[1;34m==========================================\033[0m"
 echo -e "\033[1;34m   Setup Completed successfully!\033[0m"
 echo -e "\033[1;34m==========================================\033[0m"
 
+echo -e "\n\033[1;32m[info] Launching local verification demo...\033[0m"
+NODE_ENV=production node src/server.js > /dev/null 2>&1 &
+sleep 2
+if command -v xdg-open > /dev/null; then
+    xdg-open "http://localhost:3000"
+elif command -v open > /dev/null; then
+    open "http://localhost:3000"
+fi
+
 exit $TEST_EXIT_CODE
