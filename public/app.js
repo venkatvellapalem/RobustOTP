@@ -60,6 +60,8 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
   const btn = e.target.querySelector('button');
   const status = document.getElementById('send-status');
   btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Sending...';
   status.className = 'status';
   status.textContent = '';
   status.innerHTML = '';
@@ -93,6 +95,7 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
     status.textContent = 'Could not reach server. Is it running?';
   } finally {
     btn.disabled = false;
+    btn.textContent = originalText;
   }
 });
 
@@ -101,6 +104,8 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
   const btn = e.target.querySelector('button');
   const status = document.getElementById('verify-status');
   btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Verifying...';
   status.className = 'status';
 
   try {
@@ -122,6 +127,7 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
     status.textContent = 'Could not reach server.';
   } finally {
     btn.disabled = false;
+    btn.textContent = originalText;
   }
 });
 
