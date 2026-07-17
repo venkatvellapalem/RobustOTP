@@ -4,12 +4,19 @@ const emailService = require('../services/emailService');
 const otpService = require('../services/otpService');
 const { validateIdentifier, validateCode } = require('../utils/validation');
 
-async function send(req, res) {
-  try {
-    const { identifier: raw } = req.body;
-    const { valid, normalized, error } = validateIdentifier(raw);
-    if (!valid) return res.status(400).json({ message: error });
+const activeRequests = new Set();
 
+async function send(req, res) {
+  const { identifier: raw } = req.body;
+  const { valid, normalized, error } = validateIdentifier(raw);
+  if (!valid) return res.status(400).json({ message: error });
+
+  if (activeRequests.has(normalized)) {
+    return res.status(429).json({ message: 'A request is already in progress for this email.' });
+  }
+  activeRequests.add(normalized);
+
+  try {
     const user = await userRepository.findOrCreate(normalized);
 
     const since = new Date(Date.now() - otpService.SEND_WINDOW_MS);
@@ -52,6 +59,8 @@ async function send(req, res) {
       message: 'Internal server error',
       details: err.message,
     });
+  } finally {
+    activeRequests.delete(normalized);
   }
 }
 

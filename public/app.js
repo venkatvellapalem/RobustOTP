@@ -13,6 +13,8 @@ const gmailWarning = document.getElementById('gmail-warning');
 const spamNotice = document.getElementById('spam-notice');
 
 let warningDismissed = false;
+let isSending = false;
+let isVerifying = false;
 
 function checkGmail() {
   const email = identifierInput.value.trim().toLowerCase();
@@ -57,6 +59,8 @@ document.getElementById('resend-link').addEventListener('click', (e) => {
 
 document.getElementById('send-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (isSending) return;
+  isSending = true;
   const btn = e.target.querySelector('button');
   const status = document.getElementById('send-status');
   btn.disabled = true;
@@ -96,11 +100,14 @@ document.getElementById('send-form').addEventListener('submit', async (e) => {
   } finally {
     btn.disabled = false;
     btn.textContent = originalText;
+    isSending = false;
   }
 });
 
 document.getElementById('verify-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (isVerifying) return;
+  isVerifying = true;
   const btn = e.target.querySelector('button');
   const status = document.getElementById('verify-status');
   btn.disabled = true;
@@ -128,6 +135,7 @@ document.getElementById('verify-form').addEventListener('submit', async (e) => {
   } finally {
     btn.disabled = false;
     btn.textContent = originalText;
+    isVerifying = false;
   }
 });
 
