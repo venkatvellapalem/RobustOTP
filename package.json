@@ -10,7 +10,7 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
-    "vercel-build": "prisma generate && prisma db push"
+    "vercel-build": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

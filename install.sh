@@ -49,14 +49,10 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
 fi
 
-# Run SQLite transformation for local zero-dependency database
-echo -e "\033[1;32m[info] Tuning database settings for local zero-config environment...\033[0m"
-node scripts/use-sqlite.js
-
 # 5. Database setup
-echo -e "\033[1;32m[info] Initializing database schema with Prisma...\033[0m"
-npx prisma generate
-npx prisma db push
+echo -e "\033[1;32m[info] Initializing local database schema with Prisma...\033[0m"
+npx prisma generate --schema=prisma/schema.local.prisma
+npx prisma db push --schema=prisma/schema.local.prisma
 
 # 6. Start test server
 echo -e "\033[1;32m[info] Starting test server and executing verification suite...\033[0m"

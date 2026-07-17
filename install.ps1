@@ -59,14 +59,10 @@ if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env"
 }
 
-# Run SQLite transformation for local zero-dependency database
-Write-Host "[info] Tuning database settings for local zero-config environment..." -ForegroundColor Green
-node scripts/use-sqlite.js
-
 # 5. Initialize database schema
-Write-Host "[info] Initializing database schema with Prisma..." -ForegroundColor Green
-npx prisma generate
-npx prisma db push
+Write-Host "[info] Initializing local database schema with Prisma..." -ForegroundColor Green
+npx prisma generate --schema=prisma/schema.local.prisma
+npx prisma db push --schema=prisma/schema.local.prisma
 
 # 6. Run automated verification test suite
 Write-Host "[info] Starting test server and executing verification suite..." -ForegroundColor Green
