@@ -140,17 +140,41 @@
       display: block;
     }
 
+    .code-block-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
     .code-block {
       background: #fafafa;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
-      padding: 16px;
+      padding: 16px 48px 16px 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 12.5px;
       line-height: 1.5;
       color: #111111;
       overflow-x: auto;
-      margin-bottom: 12px;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+    .copy-btn:hover {
+      color: #111111;
+      background: #f3f4f6;
     }
     
     .benefits-list {
@@ -267,15 +291,39 @@
         </div>
         
         <div id="tab-win" class="tab-content active">
-          <div class="code-block">irm https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.ps1 | iex</div>
+          <div class="code-block-wrapper">
+            <div class="code-block" id="cmd-win">irm https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.ps1 | iex</div>
+            <button class="copy-btn" data-target="cmd-win" title="Copy to clipboard">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
           <p style="font-size:12px; color:#666666; text-align:center;">Copy and run this command in PowerShell</p>
         </div>
         <div id="tab-mac" class="tab-content">
-          <div class="code-block">curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</div>
+          <div class="code-block-wrapper">
+            <div class="code-block" id="cmd-mac">curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</div>
+            <button class="copy-btn" data-target="cmd-mac" title="Copy to clipboard">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
           <p style="font-size:12px; color:#666666; text-align:center;">Copy and run this command in Terminal</p>
         </div>
         <div id="tab-linux" class="tab-content">
-          <div class="code-block">curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</div>
+          <div class="code-block-wrapper">
+            <div class="code-block" id="cmd-linux">curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</div>
+            <button class="copy-btn" data-target="cmd-linux" title="Copy to clipboard">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
           <p style="font-size:12px; color:#666666; text-align:center;">Copy and run this command in Shell</p>
         </div>
       </div>
