@@ -69,7 +69,8 @@ async function sendOTPEmail(email, otp) {
 
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) {
-    return { success: false, provider: 'brevo', status: 0, message: 'SMTP_HOST or BREVO_API_KEY not set', details: '' };
+    console.log(`\n--------------------------------------------------\n[DEMO MODE] No email provider configured.\nOTP code for ${email} is: ${otp}\n--------------------------------------------------\n`);
+    return { success: true, provider: 'console', messageId: 'demo-console' };
   }
   if (!emailFrom) {
     return { success: false, provider: 'brevo', status: 0, message: 'EMAIL_FROM not set', details: '' };
