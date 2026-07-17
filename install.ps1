@@ -8,7 +8,7 @@ Write-Host "==========================================" -ForegroundColor Cyan
 # 1. Check Node.js installation
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
     Write-Error "Node.js is not installed on this machine. Please download it from https://nodejs.org/"
-    exit 1
+    return
 }
 
 # 2. Check if we are inside the repository, or need to clone it
@@ -23,7 +23,7 @@ if (-not (Test-Path "package.json")) {
 
 # 3. Install packages
 Write-Host "[info] Installing dependencies..." -ForegroundColor Green
-npm install
+npm install --ignore-scripts
 
 # 4. Configure environment
 if (-not (Test-Path ".env")) {
@@ -42,7 +42,7 @@ if ($envContent -match "DATABASE_URL=\s*`r?`n" -or $envContent -notmatch "DATABA
     Write-Host "==========================================" -ForegroundColor Cyan
     Write-Host "   Setup paused — Waiting for database configuration" -ForegroundColor Cyan
     Write-Host "==========================================" -ForegroundColor Cyan
-    exit 0
+    return
 }
 
 # 5. Initialize database schema

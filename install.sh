@@ -24,7 +24,7 @@ fi
 
 # 3. Install packages
 echo -e "\033[1;32m[info] Installing dependencies...\033[0m"
-npm install
+npm install --ignore-scripts
 
 # 4. Setup env
 if [ ! -f ".env" ]; then
