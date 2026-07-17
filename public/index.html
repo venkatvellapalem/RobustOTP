@@ -21,7 +21,8 @@
           <input type="email" id="identifier" placeholder="you@example.com" required autofocus autocomplete="off">
           <div id="gmail-warning" class="gmail-popup" hidden>
             <div class="gmail-popup-arrow"></div>
-            <div class="gmail-popup-content">
+            <button type="button" id="close-warning-btn" style="position:absolute;top:6px;right:8px;background:none;border:none;font-size:14px;color:#666666;cursor:pointer;line-height:1;outline:none;">&times;</button>
+            <div class="gmail-popup-content" style="padding-right:12px;">
               <svg class="warning-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                 <line x1="12" y1="9" x2="12" y2="13"></line>

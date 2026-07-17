@@ -12,23 +12,38 @@ const identifierInput = document.getElementById('identifier');
 const gmailWarning = document.getElementById('gmail-warning');
 const spamNotice = document.getElementById('spam-notice');
 
+let warningDismissed = false;
+
 function checkGmail() {
   const email = identifierInput.value.trim().toLowerCase();
   const atIdx = email.lastIndexOf('@');
   if (atIdx === -1) {
     gmailWarning.hidden = true;
+    warningDismissed = false;
     return;
   }
   const domain = email.substring(atIdx + 1);
-  // ponytail: minimal matching logic for gmail prefix to avoid regex parsing overhead.
-  gmailWarning.hidden = !(domain && 'gmail.com'.startsWith(domain));
+  const isGmailPrefix = domain && 'gmail.com'.startsWith(domain);
+
+  if (!isGmailPrefix) {
+    gmailWarning.hidden = true;
+    warningDismissed = false;
+  } else {
+    gmailWarning.hidden = warningDismissed;
+  }
 }
 
 identifierInput.addEventListener('input', checkGmail);
 
+document.getElementById('close-warning-btn').addEventListener('click', () => {
+  warningDismissed = true;
+  gmailWarning.hidden = true;
+});
+
 document.getElementById('try-other-link').addEventListener('click', (e) => {
   e.preventDefault();
   gmailWarning.hidden = true;
+  warningDismissed = false;
   identifierInput.value = '';
   identifierInput.focus();
 });

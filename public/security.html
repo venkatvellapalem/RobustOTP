@@ -220,7 +220,17 @@
 <body>
   <div class="wrapper">
     <header>
-      <div class="logo-badge">&#10004;</div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="60" height="60" style="margin-bottom:16px; display:inline-block;">
+        <defs>
+          <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4f46e5"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="100" rx="28" fill="url(#logo-gradient)"/>
+        <path d="M50 20 C62 20 72 25 72 25 C72 25 74 46 67 60 C61 72 50 78 50 78 C50 78 39 72 33 60 C26 46 28 25 28 25 C28 25 38 20 50 20 Z" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M41 49 L47 55 L59 40" fill="none" stroke="#fbbf24" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
       <h1>RobustOTP Security Architecture</h1>
       <p class="lead">Enterprise-level abuse resistant authentication parameters</p>
     </header>
@@ -258,9 +268,9 @@
       
       <div class="tabs-container">
         <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('win')">Windows</button>
-          <button class="tab-btn" onclick="switchTab('mac')">macOS</button>
-          <button class="tab-btn" onclick="switchTab('linux')">Linux</button>
+          <button class="tab-btn active" id="btn-win" onclick="switchTab('win')">Windows</button>
+          <button class="tab-btn" id="btn-mac" onclick="switchTab('mac')">macOS</button>
+          <button class="tab-btn" id="btn-linux" onclick="switchTab('linux')">Linux</button>
         </div>
         
         <div id="tab-win" class="tab-content active">
@@ -290,7 +300,7 @@
 
     <div class="support-box">
       <p>RobustOTP is a zero-latency, bulletproof auth protocol engineered to eliminate spam and protect system integrity. Ready to secure your stack?</p>
-      <a href="mailto:venkatvellapalem@gmail.com" class="support-email">Get Integration Support</a>
+      <a href="mailto:venkatvellapalem@gmail.com?subject=RobustOTP%20Integration%20Consulting&body=Hey%2C%20we%20are%20%5BYour%20Name%2FCompany%20Name%5D.%0A%0AWe'd%20love%20to%20discuss%20integrating%20RobustOTP%20into%20our%20infrastructure.%20Let's%20connect%20and%20schedule%20a%20brief%20call.%0A%0ABest%20regards%2C%0A%5BYour%20Name%5D" class="support-email">Get Integration Support</a>
     </div>
 
     <footer>
@@ -303,11 +313,8 @@
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
       
-      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.textContent.toLowerCase().includes(os === 'win' ? 'windows' : os));
-      if (activeBtn) activeBtn.classList.add('active');
-      
-      const activeContent = document.getElementById('tab-' + os);
-      if (activeContent) activeContent.classList.add('active');
+      document.getElementById('btn-' + os).classList.add('active');
+      document.getElementById('tab-' + os).classList.add('active');
     }
   </script>
 </body>
