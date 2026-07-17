@@ -41,7 +41,17 @@ fi
 
 # 3. Install packages
 echo -e "\033[1;32m[info] Installing dependencies...\033[0m"
-npm install --ignore-scripts
+if ! npm install --ignore-scripts || [ ! -d "node_modules" ]; then
+    echo -e ""
+    echo -e "\033[1;31m[error] Dependency installation failed. Node.js or npm is not configured correctly on your system.\033[0m"
+    echo -e "\033[1;31m[error] Our product runs on Node.js and requires package manager setup.\033[0m"
+    echo -e ""
+    echo -e "\033[1;33mYou can either:\033[0m"
+    echo -e "\033[1;32m1. Repair/reinstall Node.js: https://nodejs.org/\033[0m"
+    echo -e "\033[1;32m2. Test our deployed product online: https://robust-otp-cytrus.vercel.app/\033[0m"
+    echo -e ""
+    exit 1
+fi
 
 # 4. Setup env
 if [ ! -f ".env" ]; then
@@ -51,8 +61,14 @@ fi
 
 # 5. Database setup
 echo -e "\033[1;32m[info] Initializing local database schema with Prisma...\033[0m"
-npx prisma generate --schema=prisma/schema.local.prisma
-npx prisma db push --schema=prisma/schema.local.prisma
+if ! npx prisma generate --schema=prisma/schema.local.prisma; then
+    echo -e "\033[1;31m[error] Prisma Client generation failed.\033[0m"
+    exit 1
+fi
+if ! npx prisma db push --schema=prisma/schema.local.prisma; then
+    echo -e "\033[1;31m[error] Database schema push failed.\033[0m"
+    exit 1
+fi
 
 # 6. Start test server
 echo -e "\033[1;32m[info] Starting test server and executing verification suite...\033[0m"

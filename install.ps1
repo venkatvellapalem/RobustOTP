@@ -52,6 +52,17 @@ if (-not (Test-Path "package.json")) {
 # 3. Install packages
 Write-Host "[info] Installing dependencies..." -ForegroundColor Green
 npm install --ignore-scripts
+if ($LastExitCode -ne 0 -or -not (Test-Path "node_modules")) {
+    Write-Host ""
+    Write-Host "[error] Dependency installation failed. Node.js or npm is not configured correctly on your system." -ForegroundColor Red
+    Write-Host "[error] Our product runs on Node.js and requires package manager setup." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "You can either:" -ForegroundColor Yellow
+    Write-Host "1. Repair/reinstall Node.js: https://nodejs.org/" -ForegroundColor Green
+    Write-Host "2. Test our deployed product online: https://robust-otp-cytrus.vercel.app/" -ForegroundColor Green
+    Write-Host ""
+    return
+}
 
 # 4. Configure environment
 if (-not (Test-Path ".env")) {
@@ -62,7 +73,15 @@ if (-not (Test-Path ".env")) {
 # 5. Initialize database schema
 Write-Host "[info] Initializing local database schema with Prisma..." -ForegroundColor Green
 npx prisma generate --schema=prisma/schema.local.prisma
+if ($LastExitCode -ne 0) {
+    Write-Host "[error] Prisma Client generation failed." -ForegroundColor Red
+    return
+}
 npx prisma db push --schema=prisma/schema.local.prisma
+if ($LastExitCode -ne 0) {
+    Write-Host "[error] Database schema push failed." -ForegroundColor Red
+    return
+}
 
 # 6. Run automated verification test suite
 Write-Host "[info] Starting test server and executing verification suite..." -ForegroundColor Green
