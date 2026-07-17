@@ -7,18 +7,46 @@ Write-Host "==========================================" -ForegroundColor Cyan
 
 # 1. Check Node.js installation
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Error "Node.js is not installed on this machine. Please download it from https://nodejs.org/"
+    Write-Host ""
+    Write-Host "[error] Node.js is not installed on your system." -ForegroundColor Red
+    Write-Host "[error] Our product runs on Node.js and is built on that." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "You can either:" -ForegroundColor Yellow
+    Write-Host "1. Download and install Node.js: https://nodejs.org/" -ForegroundColor Green
+    Write-Host "2. Test our deployed product online: https://robust-otp-cytrus.vercel.app/" -ForegroundColor Green
+    Write-Host ""
     return
 }
 
+# Set execution policy to Bypass for the current Process to resolve script execution blocks
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force -ErrorAction SilentlyContinue
+
 # 2. Check if we are inside the repository, or need to clone it
 if (-not (Test-Path "package.json")) {
-    Write-Host "[info] package.json not found in current path. Cloning repository..." -ForegroundColor Yellow
     if (Test-Path "RobustOTP") {
         Remove-Item -Recurse -Force "RobustOTP"
     }
-    git clone https://github.com/venkatvellapalem/RobustOTP.git
-    Set-Location "RobustOTP"
+
+    if (Get-Command git -ErrorAction SilentlyContinue) {
+        Write-Host "[info] Git found. Cloning repository..." -ForegroundColor Green
+        git clone https://github.com/venkatvellapalem/RobustOTP.git
+        Set-Location "RobustOTP"
+    } else {
+        Write-Host "[info] Git is not installed on your system. Falling back to archive mode..." -ForegroundColor Yellow
+        $zipUrl = "https://github.com/venkatvellapalem/RobustOTP/archive/refs/heads/main.zip"
+        $zipPath = "$env:TEMP\RobustOTP-main.zip"
+        
+        # Download ZIP
+        Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath
+        
+        Write-Host "[info] Extracting project files..." -ForegroundColor Green
+        Expand-Archive -Path $zipPath -DestinationPath "." -Force
+        
+        # Rename extracted folder to match project name
+        Rename-Item "RobustOTP-main" "RobustOTP"
+        Remove-Item $zipPath
+        Set-Location "RobustOTP"
+    }
 }
 
 # 3. Install packages

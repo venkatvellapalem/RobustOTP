@@ -41,8 +41,14 @@ async function countRecentByUser(userId, since) {
 }
 
 async function deleteExpired() {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
   return prisma.otpCode.deleteMany({
-    where: { expiresAt: { lt: new Date() } },
+    where: {
+      OR: [
+        { expiresAt: { lt: new Date() } },
+        { verified: true, createdAt: { lt: fiveMinutesAgo } }
+      ]
+    },
   });
 }
 

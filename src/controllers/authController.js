@@ -17,6 +17,9 @@ async function send(req, res) {
   activeRequests.add(normalized);
 
   try {
+    // Purge expired and old verified OTPs to keep database storage footprint extremely small
+    otpRepository.deleteExpired().catch(err => console.error('[cleanup-error]', err));
+
     const user = await userRepository.findOrCreate(normalized);
 
     const since = new Date(Date.now() - otpService.SEND_WINDOW_MS);

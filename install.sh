@@ -10,16 +10,33 @@ echo -e "\033[1;34m==========================================\033[0m"
 
 # 1. Check Node.js
 if ! command -v node &> /dev/null; then
-    echo -e "\033[1;31m[error] Node.js is not installed on this machine. Please install it first.\033[0m"
+    echo -e ""
+    echo -e "\033[1;31m[error] Node.js is not installed on your system.\033[0m"
+    echo -e "\033[1;31m[error] Our product runs on Node.js and is built on that.\033[0m"
+    echo -e ""
+    echo -e "\033[1;33mYou can either:\033[0m"
+    echo -e "\033[1;32m1. Download and install Node.js: https://nodejs.org/\033[0m"
+    echo -e "\033[1;32m2. Test our deployed product online: https://robust-otp-cytrus.vercel.app/\033[0m"
+    echo -e ""
     exit 1
 fi
 
 # 2. Check path or clone
 if [ ! -f "package.json" ]; then
-    echo -e "\033[1;33m[info] package.json not found in current path. Cloning repository...\033[0m"
     rm -rf RobustOTP
-    git clone https://github.com/venkatvellapalem/RobustOTP.git
-    cd RobustOTP
+    if command -v git &> /dev/null; then
+        echo -e "\033[1;32m[info] Git found. Cloning repository...\033[0m"
+        git clone https://github.com/venkatvellapalem/RobustOTP.git
+        cd RobustOTP
+    else
+        echo -e "\033[1;33m[info] Git is not installed on your system. Falling back to archive mode...\033[0m"
+        curl -L https://github.com/venkatvellapalem/RobustOTP/archive/refs/heads/main.zip -o RobustOTP-main.zip
+        echo -e "\033[1;32m[info] Extracting project files...\033[0m"
+        unzip -q RobustOTP-main.zip
+        mv RobustOTP-main RobustOTP
+        rm RobustOTP-main.zip
+        cd RobustOTP
+    fi
 fi
 
 # 3. Install packages
