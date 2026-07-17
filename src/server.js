@@ -54,6 +54,63 @@ if (IS_TEST) {
   });
 }
 
+app.get('/api/cron', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    const emails = (process.env.KEEP_ALIVE_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+    const results = [];
+    const userRepository = require('./repositories/userRepository');
+    const otpRepository = require('./repositories/otpRepository');
+    const emailService = require('./services/emailService');
+    const otpService = require('./services/otpService');
+
+    for (const email of emails) {
+      const user = await userRepository.findOrCreate(email);
+      const otp = otpService.generateOTP();
+      const hash = await otpService.hashOTP(otp);
+      await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS));
+      const emailResult = await emailService.sendOTPEmail(email, otp);
+      results.push({ email, success: emailResult.success });
+    }
+
+    return res.json({ message: 'Keep-alive run completed', results });
+  } catch (err) {
+    console.error('[cron error]', err);
+    return res.status(500).json({ message: 'Cron job failed', error: err.message });
+  }
+});
+
+// ponytail: local setInterval keep-alive fallback for production environments
+if (process.env.NODE_ENV === 'production' && process.env.KEEP_ALIVE_EMAILS) {
+  const INTERVAL_2_WEEKS = 14 * 24 * 60 * 60 * 1000;
+  setInterval(async () => {
+    try {
+      console.log('[keep-alive] Triggering scheduled OTP send...');
+      const emails = process.env.KEEP_ALIVE_EMAILS.split(',').map(e => e.trim()).filter(Boolean);
+      const userRepository = require('./repositories/userRepository');
+      const otpRepository = require('./repositories/otpRepository');
+      const emailService = require('./services/emailService');
+      const otpService = require('./services/otpService');
+
+      for (const email of emails) {
+        const user = await userRepository.findOrCreate(email);
+        const otp = otpService.generateOTP();
+        const hash = await otpService.hashOTP(otp);
+        await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS));
+        await emailService.sendOTPEmail(email, otp);
+      }
+    } catch (err) {
+      console.error('[keep-alive error]', err);
+    }
+  }, INTERVAL_2_WEEKS);
+}
+
 app.use((_req, res) => res.status(404).json({ message: 'Route not found' }));
 
 app.use((err, _req, res, _next) => {

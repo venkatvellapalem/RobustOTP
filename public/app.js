@@ -127,20 +127,38 @@ document.getElementById('done-btn').addEventListener('click', () => {
   showStep('step-email');
 });
 
-document.getElementById('copy-btn').addEventListener('click', async () => {
-  const tokenInput = document.getElementById('token-display');
+// ponytail: minimal inline fetch to verify health and update dynamic status pills in footer.
+async function checkHealth() {
+  const sysBadge = document.getElementById('system-health');
+  const emailBadge = document.getElementById('email-health');
+  
   try {
-    // ponytail: clean native clipboard write to avoid bulky flash or fallback libraries.
-    await navigator.clipboard.writeText(tokenInput.value);
-    const copyIcon = document.querySelector('.copy-icon');
-    const checkIcon = document.querySelector('.check-icon');
-    copyIcon.style.display = 'none';
-    checkIcon.style.display = 'inline-block';
-    setTimeout(() => {
-      copyIcon.style.display = 'inline-block';
-      checkIcon.style.display = 'none';
-    }, 2000);
-  } catch (err) {
-    console.error('Failed to copy token:', err);
+    const r = await fetch('/health').then(res => res.json());
+    if (r.status === 'ok') {
+      sysBadge.textContent = 'System: Online';
+      sysBadge.className = 'health-badge ok';
+    } else {
+      sysBadge.textContent = 'System: Error';
+      sysBadge.className = 'health-badge error';
+    }
+  } catch {
+    sysBadge.textContent = 'System: Offline';
+    sysBadge.className = 'health-badge error';
   }
-});
+
+  try {
+    const r = await fetch('/health/email').then(res => res.json());
+    if (r.configured && r.senderConfigured) {
+      emailBadge.textContent = 'Email: Ready';
+      emailBadge.className = 'health-badge ok';
+    } else {
+      emailBadge.textContent = 'Email: Error';
+      emailBadge.className = 'health-badge error';
+    }
+  } catch {
+    emailBadge.textContent = 'Email: Error';
+    emailBadge.className = 'health-badge error';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', checkHealth);
