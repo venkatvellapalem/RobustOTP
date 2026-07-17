@@ -32,8 +32,6 @@ async function send(req, res) {
 
     await otpRepository.create(user.id, hash, 'auth', new Date(Date.now() + otpService.OTP_TTL_MS));
 
-    console.log(`[OTP] ${normalized} → ${otp}`);
-
     const result = await emailService.sendOTPEmail(normalized, otp);
     if (!result.success) {
       return res.status(500).json({

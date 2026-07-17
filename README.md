@@ -40,7 +40,7 @@ Open http://localhost:3000
 - Storage: bcrypt hash only (cost 12), never plaintext
 - Verification: constant-time bcrypt compare
 - Lockout: 5 failed attempts → locked
-- Rate limit: 3 sends per 10-min window per identifier
+- Rate limit: 3 sends per 5-min window per identifier
 - Expiry: 5 minutes TTL
 - Reuse: invalidated on first successful verify
 

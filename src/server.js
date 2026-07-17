@@ -13,6 +13,17 @@ const PORT = process.env.PORT || 3000;
 const IS_TEST = process.env.NODE_ENV === 'test';
 
 app.use(express.json());
+
+// ponytail: manual security headers middleware to avoid Helmet dependency and increase security
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none';");
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
 app.use(requestLogger);
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
@@ -71,6 +82,8 @@ app.get('/api/cron', rateLimit(60 * 60 * 1000, 5), async (req, res) => {
     const otpRepository = require('./repositories/otpRepository');
     const emailService = require('./services/emailService');
     const otpService = require('./services/otpService');
+
+    await otpRepository.deleteExpired();
 
     for (const email of emails) {
       const user = await userRepository.findOrCreate(email);

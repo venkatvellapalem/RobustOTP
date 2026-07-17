@@ -4,7 +4,7 @@ const nodeCrypto = require('crypto');
 const OTP_TTL_MS = 5 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 const SEND_LIMIT = 3;
-const SEND_WINDOW_MS = 10 * 60 * 1000;
+const SEND_WINDOW_MS = 5 * 60 * 1000;
 const BCRYPT_ROUNDS = 12;
 
 function generateOTP() {

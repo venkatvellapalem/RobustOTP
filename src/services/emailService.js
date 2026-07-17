@@ -39,7 +39,7 @@ async function sendOTPEmail(email, otp) {
 <tr><td align="center">
 <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);">
 <tr><td style="padding:40px 40px 0;text-align:center;">
-<div style="width:48px;height:48px;background:#4f46e5;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;"><span style="color:#fff;font-size:22px;font-weight:700;">R</span></div>
+<div style="width:48px;height:48px;background:linear-gradient(135deg, #4f46e5, #7c3aed);border-radius:12px;text-align:center;line-height:48px;display:inline-block;margin-bottom:16px;"><span style="color:#fbbf24;font-size:24px;font-weight:bold;">&#10004;</span></div>
 <h1 style="margin:0 0 8px;font-size:20px;color:#1a1a2e;font-weight:600;">RobustOTP</h1>
 <p style="margin:0 0 24px;font-size:14px;color:#6b7280;">Your verification code</p>
 </td></tr>

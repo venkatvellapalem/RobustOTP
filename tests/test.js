@@ -160,7 +160,7 @@ async function testBruteForce() {
 }
 
 async function testSendRateLimit() {
-  console.log('\n▸ Send rate limit (3 per 10-min window)');
+  console.log('\n▸ Send rate limit (3 per 5-min window)');
 
   const identifier = `ratelimit_${Date.now()}@example.com`;
 
