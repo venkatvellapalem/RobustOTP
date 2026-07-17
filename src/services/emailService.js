@@ -16,27 +16,27 @@ async function sendOTPEmail(email, otp) {
 
   const htmlContent = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#090d16;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090d16;padding:40px 20px;">
+<body style="margin:0;padding:0;background:#fafafa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;padding:40px 20px;">
 <tr><td align="center">
-<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#111827;border-radius:16px;overflow:hidden;border:1px solid #1f2937;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
 <tr><td style="padding:40px 40px 0;text-align:center;">
 <div style="width:48px;height:48px;background:linear-gradient(135deg, #4f46e5, #7c3aed);border-radius:12px;text-align:center;line-height:48px;display:inline-block;margin-bottom:16px;">
   <span style="color:#fbbf24;font-size:24px;font-weight:bold;">&#10004;</span>
 </div>
-<h1 style="margin:0 0 8px;font-size:20px;color:#ffffff;font-weight:600;">RobustOTP</h1>
-<p style="margin:0 0 24px;font-size:14px;color:#9ca3af;">Your verification code</p>
+<h1 style="margin:0 0 8px;font-size:20px;color:#111111;font-weight:600;">RobustOTP</h1>
+<p style="margin:0 0 24px;font-size:14px;color:#666666;">Your verification code</p>
 </td></tr>
 <tr><td style="padding:0 40px;text-align:center;">
-<div style="background:#1f2937;border:1px solid #374151;border-radius:12px;padding:28px 20px;margin-bottom:24px;">
-<span style="font-size:42px;letter-spacing:8px;font-weight:700;color:#ffffff;font-family:monospace;">${otp}</span></div>
-<p style="margin:0 0 8px;font-size:14px;color:#e5e7eb;">Enter this code to complete your verification.</p>
-<p style="margin:0 0 4px;font-size:13px;color:#9ca3af;">This code expires in <strong style="color:#ffffff;">5 minutes</strong>.</p>
-<p style="margin:0 0 32px;font-size:12px;color:#9ca3af;">If you didn't request this, you can safely ignore this email.</p>
+<div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;padding:28px 20px;margin-bottom:24px;">
+<span style="font-size:42px;letter-spacing:8px;font-weight:700;color:#111111;font-family:monospace;">${otp}</span></div>
+<p style="margin:0 0 8px;font-size:14px;color:#111111;">Enter this code to complete your verification.</p>
+<p style="margin:0 0 4px;font-size:13px;color:#666666;">This code expires in <strong style="color:#111111;">5 minutes</strong>.</p>
+<p style="margin:0 0 32px;font-size:12px;color:#666666;">If you didn't request this, you can safely ignore this email.</p>
 </td></tr>
 <tr><td style="padding:0 40px 32px;">
-<hr style="border:none;border-top:1px solid #1f2937;margin:0 0 16px;">
-<p style="margin:0;font-size:11px;color:#6b7280;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
+<hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 16px;">
+<p style="margin:0;font-size:11px;color:#666666;text-align:center;">RobustOTP &bull; Secure one-time password authentication</p>
 </td></tr>
 </table></td></tr></table></body></html>`;
 

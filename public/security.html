@@ -4,18 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RobustOTP Security & Integration Dashboard</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><text x=%2250%22 y=%2268%22 text-anchor=%22middle%22 font-size=%2260%22 font-family=%22-system-ui,sans-serif%22 font-weight=%22700%22 fill=%22%23fff%22>R</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%234f46e5'/><stop offset='100%25' stop-color='%237c3aed'/></linearGradient></defs><rect width='100' height='100' rx='28' fill='url(%23g)'/><path d='M50 20 C62 20 72 25 72 25 C72 25 74 46 67 60 C61 72 50 78 50 78 C50 78 39 72 33 60 C26 46 28 25 28 25 C28 25 38 20 50 20 Z' fill='none' stroke='%23ffffff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/><path d='M41 49 L47 55 L59 40' fill='none' stroke='%23fbbf24' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/></svg>">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #090d16;
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
-      color: #e5e7eb;
+      background-color: #fafafa;
+      color: #111111;
       min-height: 100vh;
-      padding: 40px 20px;
+      padding: 60px 20px;
     }
     .wrapper {
       max-width: 900px;
@@ -37,126 +34,186 @@
       color: #fbbf24;
       font-size: 24px;
       font-weight: bold;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
     }
     h1 {
-      font-size: 28px;
-      font-weight: 800;
+      font-size: 26px;
+      font-weight: 700;
       letter-spacing: -0.03em;
-      color: #ffffff;
+      color: #111111;
       margin-bottom: 8px;
     }
     .lead {
-      color: #9ca3af;
-      font-size: 15px;
+      color: #666666;
+      font-size: 14.5px;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
       margin-bottom: 40px;
     }
     .card {
-      background: #111827;
-      border: 1px solid #1f2937;
-      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
       padding: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .card h2 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 12px;
+      color: #111111;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
     .card p {
-      font-size: 13.5px;
-      line-height: 1.6;
-      color: #9ca3af;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #666666;
     }
     .badge {
-      padding: 2px 6px;
+      padding: 1px 5px;
       border-radius: 4px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      background: #1f2937;
-      color: #818cf8;
-      border: 1px solid #374151;
+      background: #f3f4f6;
+      color: #4b5563;
+      border: 1px solid #e5e7eb;
     }
     .full-width-card {
-      background: #111827;
-      border: 1px solid #1f2937;
-      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
       padding: 32px;
       margin-bottom: 40px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .full-width-card h2 {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      color: #ffffff;
+      color: #111111;
+      margin-bottom: 12px;
+    }
+    .full-width-card p {
+      font-size: 13.5px;
+      color: #666666;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    /* OS installer tabs mimicking Ollama */
+    .tabs-container {
       margin-bottom: 16px;
     }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: #666666;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      color: #111111;
+    }
+    .tab-btn.active {
+      color: #111111;
+      border-bottom-color: #111111;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
     .code-block {
-      background: #090d16;
-      border: 1px solid #1f2937;
-      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
       padding: 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13px;
+      font-size: 12.5px;
       line-height: 1.5;
-      color: #e5e7eb;
+      color: #111111;
       overflow-x: auto;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
+    
+    .benefits-list {
+      list-style: none;
+    }
+    .benefits-list li {
+      margin-bottom: 14px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #666666;
+      padding-left: 20px;
+      position: relative;
+    }
+    .benefits-list li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: #059669;
+      font-weight: bold;
+    }
+    .benefits-list strong {
+      color: #111111;
+    }
+
     .support-box {
-      background: rgba(79, 70, 229, 0.08);
-      border: 1px solid rgba(79, 70, 229, 0.2);
-      border-radius: 16px;
-      padding: 28px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 32px;
       text-align: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-    .support-box h3 {
-      font-size: 18px;
-      color: #ffffff;
-      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .support-box p {
       font-size: 14px;
-      color: #9ca3af;
-      margin-bottom: 16px;
+      color: #666666;
+      margin-bottom: 20px;
+      line-height: 1.6;
     }
     .support-email {
       display: inline-block;
-      padding: 10px 20px;
-      background: linear-gradient(180deg, #4f46e5 0%, #4338ca 100%);
+      padding: 10px 24px;
+      background: #111111;
       color: #ffffff;
-      border-radius: 8px;
+      border-radius: 20px;
       text-decoration: none;
       font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s;
+      font-size: 13px;
+      transition: background-color 0.15s ease;
     }
     .support-email:hover {
-      background: linear-gradient(180deg, #4338ca 0%, #3730a3 100%);
-      transform: translateY(-1px);
+      background: #333333;
     }
     footer {
       text-align: center;
-      margin-top: 48px;
-      font-size: 13px;
+      margin-top: 40px;
+      font-size: 12px;
     }
     footer a {
-      color: #9ca3af;
+      color: #666666;
       text-decoration: none;
-      transition: color 0.15s;
     }
     footer a:hover {
-      color: #4f46e5;
+      color: #111111;
     }
   </style>
 </head>
@@ -185,50 +242,73 @@
         <h2>Dynamic Rate Limiting <span class="badge">IP Guard</span></h2>
         <p>Includes built-in IP-based rate limiting on all login routes, combined with client limits of 3 requests per 5 minutes to prevent email flooding abuse and resource exhaustion.</p>
       </div>
+      <div class="card">
+        <h2>Session Isolation <span class="badge">State Locked</span></h2>
+        <p>Every OTP challenge is isolated and state-serialized. Active verification tokens are bound to a single unique session token, preventing cross-user session tampering and token hijacking.</p>
+      </div>
+      <div class="card">
+        <h2>Auto-Purge Hygiene <span class="badge">Storage Clean</span></h2>
+        <p>Expired authentication hashes are automatically pruned from the database during keep-alive cycles, maintaining a clean and secure database storage footprint.</p>
+      </div>
     </div>
 
     <div class="full-width-card">
-      <h2>One-Click Local Installation & Verification</h2>
-      <p style="font-size:14px; color:#9ca3af; margin-bottom:16px;">Run this command in your PowerShell terminal to automatically download, install dependencies, configure, start, and run verification tests on your machine:</p>
-      <div class="code-block">
-        irm https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.ps1 | iex
+      <h2>One-Click Installation</h2>
+      <p>Download and run RobustOTP on your environment with a single command.</p>
+      
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('win')">Windows</button>
+          <button class="tab-btn" onclick="switchTab('mac')">macOS</button>
+          <button class="tab-btn" onclick="switchTab('linux')">Linux</button>
+        </div>
+        
+        <div id="tab-win" class="tab-content active">
+          <div class="code-block">irm https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.ps1 | iex</div>
+          <p style="font-size:12px; color:#666666; text-align:center;">Copy and run this command in PowerShell</p>
+        </div>
+        <div id="tab-mac" class="tab-content">
+          <div class="code-block">curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</div>
+          <p style="font-size:12px; color:#666666; text-align:center;">Copy and run this command in Terminal</p>
+        </div>
+        <div id="tab-linux" class="tab-content">
+          <div class="code-block">curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</div>
+          <p style="font-size:12px; color:#666666; text-align:center;">Copy and run this command in Shell</p>
+        </div>
       </div>
-      <p style="font-size:13px; color:#6b7280;">For Linux/macOS users: <code>curl -fsSL https://raw.githubusercontent.com/venkatvellapalem/RobustOTP/main/install.sh | bash</code></p>
     </div>
 
     <div class="full-width-card">
-      <h2>API Verification Guide (Backend Integration)</h2>
-      <p style="font-size:14px; color:#9ca3af; margin-bottom:16px;">Verify a user session token returned by the RobustOTP API on your backend application:</p>
-      <div class="code-block">
-// Express.js verification example
-const fetch = require('node-fetch');
-
-app.post('/api/auth-check', async (req, res) => {
-  const { identifier, code } = req.body;
-  const response = await fetch('https://robust-otp-cytrus.vercel.app/auth/verify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identifier, code })
-  });
-  
-  if (response.status === 200) {
-    const { session_token } = await response.json();
-    return res.json({ success: true, session_token });
-  }
-  return res.status(401).json({ success: false, message: 'Invalid or expired OTP' });
-});
-      </div>
+      <h2>Decoupled Authentication Architecture</h2>
+      <p>RobustOTP operates as an isolated authentication authority. Offloading OTP logic to a dedicated microservice improves security:</p>
+      <ul class="benefits-list">
+        <li><strong>Isolated Threat Surface</strong>: Authentication credentials and hash comparisons run inside a locked-down microservice, separate from your core application logic.</li>
+        <li><strong>Zero Local DB Bloat</strong>: Eliminates the need to pollute your primary user tables with short-lived codes, lockout tallies, and expiry timestamps.</li>
+        <li><strong>State Serialization</strong>: Session validation tokens are serialized and verified independently of your main user profiles, preventing cross-session privilege escalation.</li>
+      </ul>
     </div>
 
     <div class="support-box">
-      <h3>Need Help Binding to Your System?</h3>
-      <p>I can help you integrate this secure OTP verification flow into your custom web application, cloud infrastructure, or corporate environment for free.</p>
-      <a href="mailto:venkatvellapalem@gmail.com" class="support-email">Contact Venkat (venkatvellapalem@gmail.com)</a>
+      <p>RobustOTP is a zero-latency, bulletproof auth protocol engineered to eliminate spam and protect system integrity. Ready to secure your stack?</p>
+      <a href="mailto:venkatvellapalem@gmail.com" class="support-email">Get Integration Support</a>
     </div>
 
     <footer>
       <a href="/">&larr; Back to Auth Demonstration</a>
     </footer>
   </div>
+
+  <script>
+    function switchTab(os) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.textContent.toLowerCase().includes(os === 'win' ? 'windows' : os));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const activeContent = document.getElementById('tab-' + os);
+      if (activeContent) activeContent.classList.add('active');
+    }
+  </script>
 </body>
 </html>

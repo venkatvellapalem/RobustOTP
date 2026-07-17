@@ -161,4 +161,7 @@ async function checkHealth() {
   }
 }
 
-window.addEventListener('DOMContentLoaded', checkHealth);
+window.addEventListener('DOMContentLoaded', () => {
+  showStep('step-email');
+  checkHealth();
+});
