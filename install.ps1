@@ -31,19 +31,9 @@ if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env"
 }
 
-# Check if DATABASE_URL is configured
-$envContent = Get-Content ".env" -Raw
-if ($envContent -match "DATABASE_URL=\s*`r?`n" -or $envContent -notmatch "DATABASE_URL=") {
-    Write-Host ""
-    Write-Host "[warning] DATABASE_URL is empty in your .env file." -ForegroundColor Yellow
-    Write-Host "[warning] Please open '.env' and set your PostgreSQL database connection URL." -ForegroundColor Yellow
-    Write-Host "[warning] Skipping database setup and automated verification tests for now." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "==========================================" -ForegroundColor Cyan
-    Write-Host "   Setup paused — Waiting for database configuration" -ForegroundColor Cyan
-    Write-Host "==========================================" -ForegroundColor Cyan
-    return
-}
+# Run SQLite transformation for local zero-dependency database
+Write-Host "[info] Tuning database settings for local zero-config environment..." -ForegroundColor Green
+node scripts/use-sqlite.js
 
 # 5. Initialize database schema
 Write-Host "[info] Initializing database schema with Prisma..." -ForegroundColor Green

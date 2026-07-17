@@ -139,10 +139,20 @@ app.use((err, _req, res, _next) => {
 
 if (require.main === module) {
   app.listen(PORT, () => {
+    const hasBrevo = !!process.env.BREVO_API_KEY;
+    const hasSMTP = !!process.env.SMTP_HOST;
+
     console.log(`\nRobustOTP — http://localhost:${PORT}`);
     console.log(`Provider      : Brevo REST API`);
     console.log(`Sender        : ${process.env.EMAIL_FROM || '(not set)'}`);
-    console.log(`Environment   : ${IS_TEST ? 'TEST' : process.env.NODE_ENV || 'production'}\n`);
+    console.log(`Environment   : ${IS_TEST ? 'TEST' : process.env.NODE_ENV || 'production'}`);
+
+    if (!hasBrevo && !hasSMTP) {
+      console.log(`\n\x1b[33m[DEMO MODE] SMTP/Brevo is not configured.\x1b[0m`);
+      console.log(`\x1b[32m[DEMO MODE] You will retrieve your verification OTP codes printed right below in this terminal.\x1b[0m\n`);
+    } else {
+      console.log("");
+    }
   });
 }
 

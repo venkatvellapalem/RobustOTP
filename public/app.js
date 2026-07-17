@@ -205,13 +205,19 @@ async function checkHealth() {
     if (r.configured && r.senderConfigured) {
       emailBadge.textContent = 'Email: Ready';
       emailBadge.className = 'health-badge ok';
+      const box = document.getElementById('smtp-notice-box');
+      if (box) box.style.display = 'none';
     } else {
       emailBadge.textContent = 'Email: Error';
       emailBadge.className = 'health-badge error';
+      const box = document.getElementById('smtp-notice-box');
+      if (box) box.style.display = 'block';
     }
   } catch {
     emailBadge.textContent = 'Email: Error';
     emailBadge.className = 'health-badge error';
+    const box = document.getElementById('smtp-notice-box');
+    if (box) box.style.display = 'block';
   }
 }
 

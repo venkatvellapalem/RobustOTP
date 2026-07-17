@@ -32,16 +32,9 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
 fi
 
-# Check if DATABASE_URL is configured
-if grep -q "DATABASE_URL=[[:space:]]*$" .env || ! grep -q "DATABASE_URL=" .env; then
-    echo -e "\n\033[1;33m[warning] DATABASE_URL is empty in your .env file.\033[0m"
-    echo -e "\033[1;33m[warning] Please open '.env' and set your PostgreSQL database connection URL.\033[0m"
-    echo -e "\033[1;33m[warning] Skipping database setup and automated verification tests for now.\033[0m"
-    echo -e "\n\033[1;34m==========================================\033[0m"
-    echo -e "\033[1;34m   Setup paused — Waiting for database configuration\033[0m"
-    echo -e "\033[1;34m==========================================\033[0m"
-    exit 0
-fi
+# Run SQLite transformation for local zero-dependency database
+echo -e "\033[1;32m[info] Tuning database settings for local zero-config environment...\033[0m"
+node scripts/use-sqlite.js
 
 # 5. Database setup
 echo -e "\033[1;32m[info] Initializing database schema with Prisma...\033[0m"
