@@ -126,3 +126,21 @@ document.getElementById('done-btn').addEventListener('click', () => {
   spamNotice.hidden = true;
   showStep('step-email');
 });
+
+document.getElementById('copy-btn').addEventListener('click', async () => {
+  const tokenInput = document.getElementById('token-display');
+  try {
+    // ponytail: clean native clipboard write to avoid bulky flash or fallback libraries.
+    await navigator.clipboard.writeText(tokenInput.value);
+    const copyIcon = document.querySelector('.copy-icon');
+    const checkIcon = document.querySelector('.check-icon');
+    copyIcon.style.display = 'none';
+    checkIcon.style.display = 'inline-block';
+    setTimeout(() => {
+      copyIcon.style.display = 'inline-block';
+      checkIcon.style.display = 'none';
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy token:', err);
+  }
+});
