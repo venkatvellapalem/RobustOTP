@@ -84,11 +84,14 @@ app.get('/api/cron', rateLimit(60 * 60 * 1000, 5), async (req, res) => {
   try {
     const emails = (process.env.KEEP_ALIVE_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
     const results = [];
+    const prisma = require('./config/prisma');
     const userRepository = require('./repositories/userRepository');
     const otpRepository = require('./repositories/otpRepository');
     const emailService = require('./services/emailService');
     const otpService = require('./services/otpService');
 
+    // Touch DB so scheduled runs also keep Neon reachable/warm (cheap ping).
+    await prisma.$queryRaw`SELECT 1`;
     await otpRepository.deleteExpired();
 
     for (const email of emails) {
