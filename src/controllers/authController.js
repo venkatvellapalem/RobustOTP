@@ -74,24 +74,14 @@ async function send(req, res) {
 
     const result = await emailService.sendOTPEmail(normalized, otp);
     if (!result.success) {
-      return res.status(500).json({
-        success: false,
-        provider: 'brevo',
-        status: result.status,
-        message: result.message,
-        details: result.details,
-      });
+      console.error('[/auth/send email error]', { provider: result.provider, status: result.status });
+      return res.status(500).json({ message: 'Unable to send verification code. Please try again later.' });
     }
 
     return res.status(200).json({ message: 'OTP sent successfully' });
   } catch (err) {
     console.error('[/auth/send error]', err);
-    return res.status(500).json({
-      success: false,
-      provider: 'brevo',
-      message: 'Internal server error',
-      details: err.message,
-    });
+    return res.status(500).json({ message: 'Internal server error' });
   } finally {
     activeRequests.delete(normalized);
   }

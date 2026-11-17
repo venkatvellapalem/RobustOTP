@@ -12,7 +12,7 @@ async function main() {
     
     console.log("Successfully locked down demo_user permissions!");
   } catch (err) {
-    console.error("Error setting up database permissions:", err.message);
+    console.error("Error setting up database permissions.");
   } finally {
     await prisma.$disconnect();
   }

@@ -75,7 +75,7 @@ const { rateLimit } = require('./middleware/rateLimiter');
 
 app.get('/api/cron', rateLimit(60 * 60 * 1000, 5), async (req, res) => {
   const authHeader = req.headers.authorization;
-  const cronSecret = process.env.CRON_SECRET || (IS_TEST ? 'test_secret' : null);
+  const cronSecret = process.env.CRON_SECRET;
 
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return res.status(401).json({ message: 'Unauthorized' });
@@ -103,7 +103,7 @@ app.get('/api/cron', rateLimit(60 * 60 * 1000, 5), async (req, res) => {
     return res.json({ message: 'Keep-alive run completed', results });
   } catch (err) {
     console.error('[cron error]', err);
-    return res.status(500).json({ message: 'Cron job failed', error: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 });
 
@@ -144,7 +144,7 @@ if (require.main === module) {
     const hasBrevo = !!process.env.BREVO_API_KEY;
     const hasSMTP = !!process.env.SMTP_HOST;
 
-    console.log(`\nRobustOTP — http://localhost:${PORT}`);
+    console.log(`\nRobustOTP - http://localhost:${PORT}`);
     console.log(`Provider      : Brevo REST API`);
     console.log(`Sender        : ${process.env.EMAIL_FROM || '(not set)'}`);
     console.log(`Environment   : ${IS_TEST ? 'TEST' : process.env.NODE_ENV || 'production'}`);
